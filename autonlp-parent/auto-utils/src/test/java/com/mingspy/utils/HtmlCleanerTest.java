@@ -23,4 +23,12 @@ public class HtmlCleanerTest {
 			System.out.println(((TagNode)ps[i]).getText());
 		}
 	}
+	
+	@Test
+	public void testP(){
+		HtmlCleaner cleaner = new HtmlCleaner();
+		TagNode node = cleaner.clean("<p class=\"name\">董建刚<a href=\"http://www.bitauto.com/feedback/FAQ.aspx?col=5&tab=8\" target=\"_blank\"><em class=\"ask_qczj ask_img\"></em></a></p>");
+		String content = node.getText().toString();
+		System.out.println(content);
+	}
 }

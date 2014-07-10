@@ -1,4 +1,4 @@
-package com.mingspy.toolkits;
+package com.mingspy.toolkits.crawling;
 
 import java.io.File;
 import java.io.FileNotFoundException;
