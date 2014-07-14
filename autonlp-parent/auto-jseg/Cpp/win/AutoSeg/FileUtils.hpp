@@ -142,6 +142,10 @@ string combinPath(const string & path, const string & path2)
 
 void getFiles( const string & path, vector<string>& files )
 {
+    if(path.empty()){
+        return;
+    }
+
     string pathInner = changeToInnerPath(path);
     if(pathInner.at(pathInner.length() - 1) == '/') {
         pathInner.erase(pathInner.length() - 1);

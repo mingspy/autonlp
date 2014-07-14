@@ -42,17 +42,14 @@ private:
 public:
     Dictionary()
     {
-        datrie.setDataFreer(WordNatureFreer);
-        datrie.setDataReader(ReadWordNatureFromFile);
-        datrie.setDataWriter(WriteWordNatureToFile);
+        init();
     }
 
     // read binary data from a file.
     Dictionary(const string & file)
     {
-        datrie.setMemPool(&mem_pool);
-        datrie.setDataReader(ReadWordNatureFromFile);
-        datrie.setDataWriter(WriteWordNatureToFile);
+        init();
+        cout<<"loading file: "<<file.c_str()<<endl;
         FILE * pfile = fopen(file.c_str(),"rb");
         //assert(pfile != NULL);
         if(!pfile) {
@@ -140,7 +137,7 @@ public:
         }
 
         for(int i = 0; i < nature_size; i++) {
-            WriteTrieStrToFile(pfile, natures[i].c_str());
+            TrieStrWriter(pfile, natures[i].c_str());
         }
 
         if(!datrie.writeToFile(pfile)) {
@@ -155,6 +152,15 @@ end_write:
 
 private:
     Dictionary(const Dictionary &);
+
+    void init() 
+    {
+        datrie.setMemPool(&mem_pool);
+        datrie.getTail().setDataFreer(WordNatureFreer);
+        datrie.getTail().setDataReader(WordNatureReader);
+        datrie.getTail().setDataWriter(WordNatureWriter);
+    }
+
     void readFromFile(FILE * pfile)
     {
         // read header
@@ -174,8 +180,9 @@ private:
         }
 
         for(int i = 0; i < nature_size; i++) {
-            wstring nature = (wchar_t *)ReadTrieStrFromFile(pfile, &mem_pool);
+            wchar_t * nature = (wchar_t *)TrieStrReader(pfile);
             addNature(nature);
+            TrieStrFreer(nature);
         }
         // read dat
         datrie.readFromFile(pfile);
@@ -251,9 +258,6 @@ private:
 class UserDict:public Dictionary{
 public:
     UserDict(const string & file):Dictionary(file){
-        user_datrie.setDataFreer(WordNatureFreer);
-        user_datrie.setDataReader(ReadWordNatureFromFile);
-        user_datrie.setDataWriter(WriteWordNatureToFile);
     }
 
     virtual const WordNature * getWordInfo(const wstring & word) const

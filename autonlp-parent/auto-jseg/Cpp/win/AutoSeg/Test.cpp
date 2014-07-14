@@ -73,14 +73,12 @@ void testDAT()
 
     timer.restart();
     // testing write to file.
-    trie.setDataWriter(WriteTrieStrToFile);
     trie.writeToFile("e:/tmp/trie.dat");
     cout<<"write datrie (words:"<<words.size()<< ") "<<timer<<" ms"<<endl;
 
     // testing read from file.
     timer.restart();
     DATrie trie2;
-    trie2.setDataReader(ReadTrieStrFromFile);
     trie2.readFromFile("e:/tmp/trie.dat");
     cout<<"read datrie (words:"<<words.size()<< ") "<<timer<<endl;
 
@@ -128,7 +126,7 @@ void testSparseInstance()
     FILE * file = fopen("e:/tmp/instance.data","wb+");
     SparseInstance<double>::DoWriteSIToFile(file, &instance);
     fseek(file, 0, SEEK_SET);
-    SparseInstance<double> *i = SparseInstance<double>::DoReadSIFromFile(file, NULL);
+    SparseInstance<double> *i = SparseInstance<double>::DoReadSIFromFile(file);
     cout<<*i<<endl;
     assert(instance.getAttrValue(20) == i->getAttrValue(20));
     assert(instance.getAttrValue(200) == i->getAttrValue(200));
@@ -195,23 +193,17 @@ void printHelp(const char * name)
 int main(int argc, char ** argv)
 {
 #if _MSC_VER > 1000
-    wcout<<"runing on windows!"<<_MSC_VER<<endl;
+    wcout<<"running on windows!"<<_MSC_VER<<endl;
 #else
-    cout<<"not runing on windows!"<<endl;
+    cout<<"not running on windows!"<<endl;
 #endif
-    AutoTokenizer tt;
-    vector<Token> vec;
-    tt.fullSplit(L"车不动的时候，会有气门声吗嗒嗒嗒的", vec);
-    //tt.uniGramSplit(L"他说的确实在理", vec);
-    Tokenizer::printTokens(vec);
-    //CheckMemLeaks();
-    if(0){
-        cout<<"sizeof(wchar_t):"<<sizeof(wchar_t)<<endl;
-        AutoTokenizer t;
-        vector<Token> rs;
-        t.posTagging(L"李岚清将在年会期间出席中国经济专题讨论会和世界经济论坛关于中国经济问题的全会，并在全会上发表演讲。他还将在这里会见世界经济论坛主席施瓦布和出席本次年会的联合国秘书长安南、瑞士联邦主席兼外长科蒂、一些其他国家的国家元首和政府首脑以及国际组织的领导人，并同他们就中国和世界经济发展问题交换看法。", rs);
-        Tokenizer::printTokenWithTag(rs);
-    }
+    vector<string> files;
+    files.push_back("../testwords.txt");
+    //DictFileBuilder::buildDict(files, "../test.dic");
+    AutoTokenizer autoSeg;
+    vector<Token> results;
+    autoSeg.biGramSplit(L"典守者具体地说", results);
+    Tokenizer::printTokens(results);
     wcout<<L"Press enter to return."<<endl;
     getchar();
     return 0;

@@ -308,7 +308,7 @@ exit_write:
         assert(false);
     }
 
-    static SparseInstance<T> * DoReadSIFromFile(FILE * file, MemoryPool<> * pmem)
+    static SparseInstance<T> * DoReadSIFromFile(FILE * file)
     {
         long old_pos = ftell(file);
         int num = 0;
@@ -318,29 +318,19 @@ exit_write:
             goto exit_read;
         }
 
-        if(pmem != NULL) {
-            inst = (SparseInstance<T> *)pmem->allocAligned(sizeof(SparseInstance<T>));
-        } else {
-            inst = new SparseInstance<T>();
-        }
+
+        inst = new SparseInstance<T>();
+   
         inst->_sumVs = ZERO;
         inst->m_NumValues = num;
         if(num > 0) {
-            if(pmem != NULL) {
-                inst->m_Indices = (int *)pmem->allocAligned(num * sizeof(int));
-            } else {
-                inst->m_Indices = new int[num];
-            }
-
+            inst->m_Indices = new int[num];
             if(fread(inst->m_Indices, sizeof(int), inst->m_NumValues, file) != inst->m_NumValues) {
                 goto exit_read_inst;
             }
 
-            if(pmem != NULL) {
-                inst->m_AttValues = (T *)pmem->allocAligned(num * sizeof(T));
-            } else {
-                inst->m_AttValues = new T[num];
-            }
+            inst->m_AttValues = new T[num];
+
 
             if(fread(inst->m_AttValues, sizeof(T), inst->m_NumValues, file) != inst->m_NumValues) {
                 goto exit_read_inst;
@@ -349,8 +339,7 @@ exit_write:
 
         return inst;
 exit_read_inst:
-        if(!pmem)
-            delete inst;
+        delete inst;
 exit_read:
         fseek(file, old_pos, SEEK_SET);
         assert(false);
@@ -401,13 +390,13 @@ void WordNatureFreer(void * ptr)
 /*
 * Reads data from given file, which used for tail unserialize.
 */
-void * ReadWordNatureFromFile(FILE * file, MemoryPool<> * pmem)
+void * WordNatureReader(FILE * file)
 {
-    return WordNature::DoReadSIFromFile(file, pmem);
+    return WordNature::DoReadSIFromFile(file);
 }
 
 
-void WriteWordNatureToFile(FILE * file, const void * data)
+void WordNatureWriter(FILE * file, const void * data)
 {
     WordNature::DoWriteSIToFile(file, static_cast<WordNature *>(const_cast<void *>(data)));
 }

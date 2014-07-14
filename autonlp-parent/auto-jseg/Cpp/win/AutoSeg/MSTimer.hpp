@@ -52,7 +52,7 @@ public:
 
     friend ostream & operator<< (ostream & out, MSTimer & timer)
     {
-        out<<" elapsed:"<<timer.elapsed()<<"s.";
+        out<<" elapsed: "<<timer.elapsed()<<"s";
         return out;
     }
 };

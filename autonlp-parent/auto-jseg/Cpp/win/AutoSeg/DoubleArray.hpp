@@ -107,7 +107,7 @@ public:
      * @param c
      * @return
      */
-    inline bool walk(int * s, wchar_t c) const
+    inline bool walk(int * s, int c) const
     {
         int next = getBase(*s) + (unsigned)c;
         if (getCheck(next) == *s) {
@@ -149,7 +149,7 @@ public:
 
                 int new_base;
                 /* relocate BASE[s] */
-                vector<wchar_t> symbols;
+                vector<int> symbols;
                 findAllChildren(s, symbols);
                 symbols.push_back(c);
                 new_base = findFreeBase(symbols);
@@ -162,7 +162,7 @@ public:
             }
         } else {
             int new_base;
-            vector<wchar_t>symbols;
+            vector<int>symbols;
             symbols.push_back(c);
             new_base = findFreeBase(symbols);
 
@@ -364,7 +364,7 @@ private:
     void relocateBase(int s, int new_base)
     {
         int old_base = getBase(s);
-        vector<wchar_t> symbols;
+        vector<int> symbols;
         findAllChildren(s, symbols);
 
         for (int i = 0; i < symbols.size(); i++) {
@@ -399,7 +399,7 @@ private:
         setBase(s, new_base);
     }
 
-    int findFreeBase(const vector<wchar_t> & children)
+    int findFreeBase(const vector<int> & children)
     {
         /* find first free cell that is beyond the first symbol */
         int first_child = children[0];
@@ -438,10 +438,10 @@ private:
      * @param children
      * @return
      */
-    bool fitAllChildren(int base, const vector<wchar_t> & children)
+    bool fitAllChildren(int base, const vector<int> & children)
     {
         for (int i = 0; i < children.size(); i++) {
-            wchar_t sym = children[i];
+            int sym = children[i];
 
             /*
              * if (base + sym) > TRIE_INDEX_MAX which means it's overflow, or
@@ -459,13 +459,13 @@ private:
      * @param s
      * @return
      */
-    void findAllChildren(int s, vector<wchar_t> & children)
+    void findAllChildren(int s, vector<int> & children)
     {
         int base = getBase(s);
         int max_c = min(TRIE_CHILD_MAX, TRIE_INDEX_MAX - base);
         for (int c = 0; c < max_c; c++) {
             if (getCheck(base + c) == s)
-                children.push_back((wchar_t) c);
+                children.push_back((int) c);
         }
     }
 
