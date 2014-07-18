@@ -1,83 +1,208 @@
 package com.mingspy.corpus;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
 import com.mingspy.utils.FolderUtils;
 import com.mingspy.utils.MSTimer;
-import com.mingspy.utils.MapSorter;
 import com.mingspy.utils.io.LineFileReader;
 import com.mingspy.utils.io.LineFileWriter;
 
 public class PeopleDailyDataProcesser {
-
-	private Map<String, WordInfo> coreWords = new HashMap<String, WordInfo>();
-	private Set<String> natures = new TreeSet<String>();
-	private boolean compose = false;
-
-	private Map<String, WordInfo> bigramWords = new HashMap<String, WordInfo>();
-	private Map<String, WordInfo> lexicalInfo = new HashMap<String, WordInfo>();
-
 	private static final String TMP_FOLDER_NAME = "tmpCorupsAnalysis";
 	private static final String NATURE_HEAD = "@WordPOS\t";
+	private static final String COMPOSE_START = "comps";
 
+	private Set<String> natures = new TreeSet<String>();
+	private WordInfoMap coreWords = new WordInfoMap();
+	private WordInfoMap bigramWords = new WordInfoMap();
+	private WordInfoMap lexicalInfo = new WordInfoMap();
+	private WordInfoMap composedInfo = new WordInfoMap();
+	private int seqNo = 0;
+
+	private char[] symbols = "（）“”《》‘’；，：、。【】？！~～()\"\"<>'':;.,?!"
+			.toCharArray();
+	private Map<String, String> natureTrans = new HashMap<String, String>();
+
+	/**
+	 * Ag 形语素 a 形容词 ad 副形词 an 名形词 Bg 区别语素 b 区别词 c 连词 Dg 副语素 d 副词 e 叹词 f 方位词 g 语素
+	 * h 前接成分 i 成语 j 简略语 k 后接成分 l 习用语 Mg 数语素 m 数词 Ng 名语素 n 名词 nr 人名 ns 地名 nt
+	 * 机构团体 nx 外文字符 nz 其它专名 o 拟声词 p 介词 Qg 量语素 q 量词 Rg 代语素 r 代词 s 处所词 Tg 时间语素 t
+	 * 时间词 Ug 助语素 u 助词 Vg 动语素 v 动词 vd 副动词 vn 名动词 w 标点符号 x 非语素字 Yg 语气语素 y 语气词 z
+	 * 状态词
+	 * 
+	 */
+	public PeopleDailyDataProcesser() {
+		// 由于2014年标注的过细致，与98不兼容，所以添加转换函数
+		// ude1,ude2,ude3,udeng,udh,uguo,ule,ulian,uls,usuo,uyy,uzhe,uzhi
+		natureTrans.put("ude1", "u");
+		natureTrans.put("ude2", "u");
+		natureTrans.put("ude3", "u");
+		natureTrans.put("udeng", "u");
+		natureTrans.put("udh", "u");
+		natureTrans.put("uguo", "u");
+		natureTrans.put("ule", "u");
+		natureTrans.put("ulian", "u");
+		natureTrans.put("uls", "u");
+		natureTrans.put("usuo", "u");
+		natureTrans.put("uyy", "u");
+		natureTrans.put("uzhe", "u");
+		natureTrans.put("uzhi", "u");
+
+		natureTrans.put("nr1", "nr");
+		natureTrans.put("nr2", "nr");
+
+		natureTrans.put("bl", "b");
+		natureTrans.put("ag", "Ag");
+		natureTrans.put("cc", "c");
+		natureTrans.put("dg", "Dg");
+		natureTrans.put("dl", "i");
+		natureTrans.put("gb", "nz");
+		natureTrans.put("gc", "nz");
+		natureTrans.put("gb", "nz");
+		natureTrans.put("gg", "nz");
+		natureTrans.put("gi", "nz");
+		natureTrans.put("gm", "nz");
+		natureTrans.put("gp", "nz");
+		
+		natureTrans.put("mq", "q");
+		
+		//nhd,nhm,nis,nit,nmc,nnd,nnt,nr,nr1,nr2,nrf,nrj,ns,nsf,nt,ntc,ntcb,ntcf,ntch,nth,nto,nts,ntu,nx,nz
+		natureTrans.put("na", "ns");
+		natureTrans.put("ng", "Ng");
+		natureTrans.put("nba", "nz");
+		natureTrans.put("nbc", "nz");
+		natureTrans.put("nhd", "nz");
+		natureTrans.put("nhm", "nz");
+		natureTrans.put("nis", "nz");
+		natureTrans.put("nit", "nz");
+		natureTrans.put("nmc", "nz");
+		natureTrans.put("nnd", "nz");
+		natureTrans.put("nnt", "nz");
+		natureTrans.put("ntc", "nt");
+		natureTrans.put("ntcb", "nt");
+		natureTrans.put("ntcf", "nt");
+		natureTrans.put("ntch", "nt");
+		natureTrans.put("nth", "nt");
+		natureTrans.put("nto", "nt");
+		natureTrans.put("ntu", "nt");
+		natureTrans.put("nsf", "ns");
+		natureTrans.put("nts", "nt");
+		
+		natureTrans.put("pba", "p");
+		natureTrans.put("pbei", "p");
+		natureTrans.put("qt", "q");
+		natureTrans.put("qv", "q");
+		
+		//r,rr,ry,rys,ryt,ryv,rz,rzs,rzt,rzv,
+		natureTrans.put("rr", "r");
+		natureTrans.put("ry", "r");
+		natureTrans.put("rys", "r");
+		natureTrans.put("ryt", "r");
+		natureTrans.put("ryv", "r");
+		natureTrans.put("rz", "r");
+		natureTrans.put("rzs", "r");
+		natureTrans.put("rzt", "r");
+		natureTrans.put("rzv", "r");
+		
+		natureTrans.put("tg", "Tg");
+		natureTrans.put("vg", "Vg");
+		
+		natureTrans.put("vshi", "v");
+		natureTrans.put("vyou", "v");
+		natureTrans.put("vx", "v");
+		natureTrans.put("vl", "v");
+		natureTrans.put("vf", "v");
+		natureTrans.put("vi", "v");
+		
+		natureTrans.put("al", "a");
+	}
+
+	/**
+	 * 从训练语料中提取词典所需要的信息，包括词，词频，词性，二元词频，标注角色，二元角色词频。
+	 * 词频统计时，对于组合词不进行组合操作，专门提取一个组合词典，用于组合词的构成语法分析。 统计词的前缀，后缀等信息用于识别组合词(包括人名)
+	 * 
+	 * @param directory
+	 *            训练语料目录。
+	 * @param output
+	 * @throws Exception
+	 */
 	public void trianCorpusData(String directory, String output)
 			throws Exception {
 		MSTimer timer = new MSTimer();
 		String tmpDir = FolderUtils.combine(output, TMP_FOLDER_NAME);
+		FolderUtils.deleteFolder(tmpDir);
+		// 由于处理大量文件时，内存和数量集几何增长，耗时较长，改用分步处理。
+		// 先写到临时文件，然后在合并。
 		analysisAndGenTmpResults(directory, tmpDir);
-		clearWordsInfo();
+		clearWordsInfos();
 		System.out.println("trying to combine results...");
-		System.gc();
-		System.gc();
-		combineTmpResults(tmpDir);
-		System.out.println("out puts results...");
-		outputResult(output);
-
+		combineTmpResults(tmpDir, output);
 		FolderUtils.deleteFolder(tmpDir);
 		System.out.println("total used: " + timer);
 	}
 
-	private void combineTmpResults(String tmpDir)
+	private void combineTmpResults(String tmpDir, String output)
 			throws UnsupportedEncodingException, FileNotFoundException {
 		List<File> files = FolderUtils.listFiles(tmpDir, false);
 		for (File f : files) {
+			if (f.getName().startsWith("lexi")) {
+				readWordsInfo(lexicalInfo, f.getAbsolutePath());
+				System.out.println("combined " + f.getName());
+			}
+		}
+		lexicalInfo.prune(1);
+		writeWordInfo(lexicalInfo, FolderUtils.combine(output, "/lexical.txt"));
+		lexicalInfo.clear();
+
+		for (File f : files) {
 			if (f.getName().startsWith("core")) {
 				readWordsInfo(coreWords, f.getAbsolutePath());
-			} else if (f.getName().startsWith("bi")) {
-				readWordsInfo(bigramWords, f.getAbsolutePath());
-			} else if (f.getName().startsWith("lexi")) {
-				readWordsInfo(lexicalInfo, f.getAbsolutePath());
+				System.out.println("combined " + f.getName());
 			}
-
-			System.out.println("combined " + f.getName());
 		}
+		// prune(coreWords, 1);
+		writeWordInfo(coreWords, FolderUtils.combine(output, "/corewords.txt"));
+		coreWords.clear();
+
+		for (File f : files) {
+			if (f.getName().startsWith("comp")) {
+				readWordsInfo(composedInfo, f.getAbsolutePath());
+				System.out.println("combined " + f.getName());
+			}
+		}
+		// prune(coreWords, 1);
+		writeWordInfo(composedInfo,
+				FolderUtils.combine(output, "/composed.txt"));
+		coreWords.clear();
+
+		for (File f : files) {
+			if (f.getName().startsWith("bi")) {
+				readWordsInfo(bigramWords, f.getAbsolutePath());
+				System.out.println("combined " + f.getName());
+			}
+		}
+		bigramWords.prune(1);
+		writeWordInfo(bigramWords, FolderUtils.combine(output, "/biwords.txt"));
+		bigramWords.clear();
 	}
 
 	private void analysisAndGenTmpResults(String directory, String tmpDir)
 			throws Exception, UnsupportedEncodingException,
 			FileNotFoundException {
-		List<File> files = FolderUtils.listFiles(directory, true);
 		double totalsize = 0;
-		// 由于处理大量文件时，内存和数量集几何增长，耗时较长，改用分步处理。
-		// 先写到临时文件，然后在合并。
+		List<File> files = FolderUtils.listFiles(directory, true);
 		for (File file : files) {
 			try {
 				if (file.isFile()) {
@@ -85,9 +210,9 @@ public class PeopleDailyDataProcesser {
 					double fsize = fis.available() / 1024 / 1024;
 					fis.close();
 
-					if (totalsize > 0 && (fsize + totalsize) > 70) {
+					if (totalsize > 0 && (fsize + totalsize) > 30) {
 						outputTmpResult(tmpDir);
-						clearWordsInfo();
+						clearWordsInfos();
 						totalsize = 0;
 					}
 
@@ -95,7 +220,6 @@ public class PeopleDailyDataProcesser {
 							+ "\tprocessing " + file.getName());
 					processAFile(file);
 					totalsize += fsize;
-
 				}
 			} catch (Exception e) {
 				System.out.println("error in:" + file);
@@ -105,76 +229,42 @@ public class PeopleDailyDataProcesser {
 		outputTmpResult(tmpDir);
 	}
 
-	private void clearWordsInfo() {
+	private void clearWordsInfos() {
 		coreWords.clear();
 		bigramWords.clear();
 		lexicalInfo.clear();
-		natures.clear();
-
+		composedInfo.clear();
 	}
 
 	private void outputTmpResult(String tmpdir)
 			throws UnsupportedEncodingException, FileNotFoundException {
-		if (natures.size() == 0 && coreWords.size() == 0
-				&& bigramWords.size() == 0 && lexicalInfo.size() == 0) {
+		if (coreWords.size() == 0)
 			return;
-		}
 		File dir = new File(tmpdir);
 		dir.mkdir();
 
-		Date date = new Date();
-		SimpleDateFormat df = new SimpleDateFormat("MMddhhmmss");
-		String now = df.format(date);
 		writeWordInfo(
 				coreWords,
-				FolderUtils.combine(dir.getAbsolutePath(), "/corewords_" + now
-						+ ".tmp"));
-		// prune(bigramWords, 1);
+				FolderUtils.combine(dir.getAbsolutePath(), "/corewords_"
+						+ seqNo + ".tmp"));
 		writeWordInfo(
 				bigramWords,
-				FolderUtils.combine(dir.getAbsolutePath(), "/biwords_" + now
+				FolderUtils.combine(dir.getAbsolutePath(), "/biwords_" + seqNo
 						+ ".tmp"));
 
-		// prune(lexicalInfo, 1);
 		writeWordInfo(
 				lexicalInfo,
-				FolderUtils.combine(dir.getAbsolutePath(), "/lexical_" + now
+				FolderUtils.combine(dir.getAbsolutePath(), "/lexical_" + seqNo
 						+ ".tmp"));
+		writeWordInfo(
+				composedInfo,
+				FolderUtils.combine(dir.getAbsolutePath(), "/composed_" + seqNo
+						+ ".tmp"));
+		seqNo++;
 	}
 
-	private void outputResult(String output)
+	private void writeWordInfo(WordInfoMap coreWords, String output)
 			throws UnsupportedEncodingException, FileNotFoundException {
-		if (natures.size() == 0 && coreWords.size() == 0
-				&& bigramWords.size() == 0 && lexicalInfo.size() == 0) {
-			return;
-		}
-
-		// prune(coreWords, 1);
-		writeWordInfo(coreWords, FolderUtils.combine(output, "/corewords.txt"));
-		prune(bigramWords, 1);
-		writeWordInfo(bigramWords, FolderUtils.combine(output, "/biwords.txt"));
-
-		prune(lexicalInfo, 1);
-		writeWordInfo(lexicalInfo, FolderUtils.combine(output, "/lexical.txt"));
-	}
-
-	private void prune(Map<String, WordInfo> coreWords, int limit) {
-		List<String> keys = new ArrayList<String>(1000);
-		for (Entry<String, WordInfo> en : coreWords.entrySet()) {
-			if (en.getValue().sumFreq() <= limit) {
-				keys.add(en.getKey());
-			}
-		}
-
-		for (String key : keys) {
-			coreWords.remove(key);
-		}
-	}
-
-	private void writeWordInfo(Map<String, WordInfo> coreWords, String output)
-			throws UnsupportedEncodingException, FileNotFoundException {
-		MapSorter<String, WordInfo> sorter = new MapSorter<String, WordInfo>();
-		List<Entry<String, WordInfo>> res = sorter.sortByKeyASC(coreWords);
 		// out put
 		LineFileWriter writer = new LineFileWriter(output);
 		String nature = NATURE_HEAD;
@@ -182,94 +272,60 @@ public class PeopleDailyDataProcesser {
 			nature += na + ",";
 		}
 		writer.writeLine(nature);
-
-		for (Entry<String, WordInfo> en : res) {
-			writer.writeLine(en.getValue().toString());
-		}
+		coreWords.writeWordInfo(writer);
 		writer.close();
 	}
 
-	private void readWordsInfo(Map<String, WordInfo> coreWords, String input)
+	private void readWordsInfo(WordInfoMap coreWords, String input)
 			throws UnsupportedEncodingException, FileNotFoundException {
 		// out put
 		LineFileReader reader = new LineFileReader(input);
 		String line = reader.nextLine();
-		if (line == null)
-			return;
 		int idx = line.indexOf(NATURE_HEAD);
-		if (idx < 0)
-			return;
 		line = line.substring(idx + NATURE_HEAD.length());
 		String[] nts = line.split(",");
 		for (String nt : nts) {
 			natures.add(nt);
 		}
+		nts = null;
 
-		while ((line = reader.nextLine()) != null) {
-			int wordIdx = line.indexOf('\t');
-			String word = line.substring(0, wordIdx);
-			line = line.substring(wordIdx + 1);
-			String[] infos = line.split(",");
-			for (String inf : infos) {
-				int inIdx = inf.indexOf(":");
-				String nt = inf.substring(0, inIdx);
-				String frq = inf.substring(inIdx + 1);
-				addWordInfo(coreWords, word, nt, Integer.parseInt(frq));
-				nt = null;
-				frq = null;
-			}
-
-			infos = null;
-			word = null;
-		}
+		coreWords.readWordInfo(reader);
 		reader.close();
 		reader = null;
 		System.gc();
 	}
 
 	private void processAFile(File file) throws Exception {
-		BufferedReader reader = null;
 		try {
-			// String coding = Utilities.getFileCoding(file);
-			reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(file), "utf-8"));
+			LineFileReader reader = new LineFileReader(file, "utf-8");
 			String line = null;
-			while ((line = reader.readLine()) != null) {
+			while ((line = reader.nextLine()) != null) {
 				List<SplitWord> splited_words = changeToSplitedWord(line.trim());
 				if (splited_words == null) {
 					continue;
 				}
 
-				trianCorpusFromMarkedWords(splited_words);
+				// 提取核心词典信息
+				extractCoreWords(splited_words);
+
+				// 提取二元词典信息
+				extractBigramWords(splited_words);
+
+				// 提取词性信息
+				extractLexicalContext(splited_words);
+
+				// 提取组合词信息
+				extractComposedLexicalPatterns(splited_words);
+				// 提取人名词典
+				// extractPersonNameWords(words);
+				// 提取组织机构词典
+				// extractOrganizationWords(words);
+				// 提取译名词典
 			}
 
 		} catch (IOException ee) {
 			ee.printStackTrace();
-		} finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 		}
-	}
-
-	private void trianCorpusFromMarkedWords(List<SplitWord> words) {
-		// 提取核心词典信息
-		extractCoreWords(words);
-
-		// 提取二元词典信息
-		extractBigramWords(words);
-
-		// 提取词性信息
-		extractLexicalContext(words);
-
-		// 提取人名词典
-		// extractPersonNameWords(words);
-		// 提取组织机构词典
-		// extractOrganizationWords(words);
-		// 提取译名词典
 	}
 
 	/**
@@ -297,55 +353,105 @@ public class PeopleDailyDataProcesser {
 		try {
 
 			for (int i = start_idx; i < marked_words.length; i++) {
-				if (marked_words[i].isEmpty()) {
+				String markedWord = marked_words[i].trim();
+				if (markedWord.isEmpty()) {
 					continue;
 				}
-				int idx = marked_words[i].lastIndexOf('/');
+				int idx = markedWord.lastIndexOf('/');
+				int idx_f = markedWord.indexOf('/');
 				if (idx < 0) {
 					continue;
 				}
 
-				String word = marked_words[i].substring(0, idx);
-				String nature = marked_words[i].substring(idx + 1);
-				if (word.isEmpty() || nature.isEmpty()) {
-					continue;
-				}
+				String word = null;
+				String nature = null;
 
+				boolean isComposeEnd = false;
+				String composeNature = null;
+				// 处理组合词的开头和结尾
 				// handle [中央/n 人民/n 广播/vn 电台/n]nt
 				// handle [中央/n 人民/n 广播/vn 电台/n]/nt
-				if (word.startsWith("[") && word.length() > 1) {
-					splited_words.add(new SplitWord("[", "w"));
-					word = word.substring(1);
-				}
-
-				// 电台/n]nt => word = 电台 nature = n]nt
-				if (nature.contains("]")) {
-					String[] nas = nature.split("]");
-					splited_words.add(new SplitWord(word, nas[0]));
-					word = "]";
-					nature = nas[1];
-				}
-				// 电台/n]/nt word = 电台/n], nature = nt
-				if (word.length() > 1 && word.charAt(word.length() - 1) == ']') {
-					int idx2 = word.lastIndexOf('/');
-					if (idx2 > 0) {
-						String w2 = word.substring(0, idx2);
-						String na2 = word
-								.substring(idx2 + 1, word.length() - 1);
-						splited_words.add(new SplitWord(w2, na2));
-						word = "]";
+				// "[中央/n"匹配这种形式的，为组合词开头
+				if (markedWord.matches("\\[.+/([\\w])+")) {
+					splited_words.add(new SplitWord("[", COMPOSE_START));
+					word = markedWord.substring(1, idx);
+					nature = markedWord.substring(idx + 1);
+				} else if (markedWord.matches(".+/[\\w]+\\]/?[\\w]+")) {
+					// 组合词结尾
+					word = markedWord.substring(0, idx_f);
+					nature = markedWord.substring(idx_f + 1);
+					isComposeEnd = true;
+					int compose_end_indx = nature.indexOf(']');
+					composeNature = nature.substring(compose_end_indx + 1);
+					nature = nature.substring(0, compose_end_indx);
+					if (composeNature.charAt(0) == '/') {
+						composeNature = composeNature.substring(1);
 					}
+				} else if (markedWord.matches("\\[.+]/?[\\w]+")) {
+					int idx_s = markedWord.indexOf('[');
+					int idx_e = markedWord.indexOf(']');
 
+					word = markedWord.substring(idx_s + 1, idx_e);
+					int idx_m = word.indexOf('/');
+					if (idx_m >= 0) {
+						nature = word.substring(idx_m + 1, idx_e);
+						word = word.substring(0, idx_m);
+					} else {
+						nature = word.substring(idx_e + 1);
+					}
+				} else {
+					nature = markedWord.substring(idx + 1);
+					if (nature.equals("%") && idx_f < idx) {
+						nature = markedWord.substring(idx_f + 1, idx);
+						word = markedWord.substring(0, idx_f);
+					} else {
+						word = markedWord.substring(0, idx);
+					}
 				}
 
-				splited_words.add(new SplitWord(word, nature));
+				if (word.isEmpty())
+					continue;
 
+				// 处理人工标记错误,去掉词尾的一些标点符号
+				if (!nature.equals("w"))
+					word = fixManualErrors(word);
+				if (!word.isEmpty())
+					splited_words.add(new SplitWord(word,
+							transferNature(nature)));
+				if (isComposeEnd) {
+					splited_words.add(new SplitWord("]", transferNature(composeNature)));
+				}
 			}
 		} catch (Exception e) {
 			System.out.println("error with:" + line);
 			throw e;
 		}
+
+		marked_words = null;
 		return splited_words.isEmpty() ? null : splited_words;
+	}
+
+	private String transferNature(String nature) {
+		String trans = natureTrans.get(nature);
+		if (trans != null) {
+			return trans;
+		}
+		return nature;
+	}
+
+	private String fixManualErrors(String word) {
+		for (char ch : symbols) {
+			if (word.charAt(0) == ch) {
+				word = word.substring(1);
+				break;
+			}
+
+			if (word.charAt(word.length() - 1) == ch) {
+				word = word.substring(0, word.length() - 1);
+				break;
+			}
+		}
+		return word;
 	}
 
 	/**
@@ -355,54 +461,21 @@ public class PeopleDailyDataProcesser {
 	 * @param splited_words
 	 */
 	private void extractCoreWords(final List<SplitWord> words) {
-		// TODO 训练实际的分词时，决定是否组合专有名词和人名。设置compose = true;则组合。
-		int composeIndex = -1;
 		for (int i = 0; i < words.size(); i++) {
 			SplitWord sw = words.get(i);
 			String word = sw.getWord();
-
-			if (word.equals("[")) {
-				composeIndex = i + 1;
+			String nature = sw.getFlag();
+			natures.add(nature);
+			if (word.equals("[") || word.equals("]") || nature.equals("w")) {
 				continue;
 			}
 
-			String nature = sw.getFlag();
-			if (nature.equals("%")) {
-				int idx = nature.indexOf('/');
-				if (idx > 0) {
-					nature = nature.substring(0, idx);
-					sw.setFlag(nature);
-				}
-			}
-
-			if (compose) {
-				// 如果是人名，则把人名合并
-				if (nature.equals("nr") && (i + 1) < words.size()) {
-					sw = words.get(i + 1);
-					if (!sw.getFlag().equals("nr")) {
-						word += sw.getWord();
-						i++;
-					}
-				}
-			}
-			// 如果词非空,不是标点
-			// 则加入核心词库.
-			if (!word.isEmpty() && !word.equals("]")) {
-				addWordInfo(coreWords, word, nature, 1);
-			}
-
-			// 添加组合词
-			if (compose) {
-				if (word.equals("]")) {
-					word = "";
-					if (composeIndex >= 0) {
-						for (int j = composeIndex; j < i; j++) {
-							if (!words.get(j).getFlag().equals("w"))
-								word += words.get(j).getWord();
-						}
-						addWordInfo(coreWords, word, nature, 1);
-					}
-					composeIndex = -1;
+			coreWords.addWordInfo(word, nature, 1);
+			if (nature.equals("nr") && i < words.size() - 1) {
+				SplitWord next = words.get(i + 1);
+				if (next.getFlag().equals("nr")
+						&& (next.getWord().length() + word.length()) <= 3) {
+					coreWords.addWordInfo(word + next.getWord(), nature, 1);
 				}
 			}
 		}
@@ -411,94 +484,76 @@ public class PeopleDailyDataProcesser {
 
 	/**
 	 * 提取二元共献词典 把属于特殊词类的所有词都替换成特殊词的标记，进行统计。 其他按正常词类计算。标点不统计，作为切分点。
-	 * 停用词也不统计，作为切分点。 不加开始结束标志，亦可正确分词。
+	 * 停用词也不统计，作为切分点。
 	 * 
 	 * @param words
+	 * @throws Exception
 	 */
 	private void extractBigramWords(final List<SplitWord> words) {
-		String currWord = null;
-		String nextWord = null;
-		for (currentIndex = 0; currentIndex < words.size() - 1;) {
-			// 获取当前词
-			if (currWord == null) {
-				currWord = nextBigramWord(words);
+		for (int i = 0; i < words.size() - 1;) {
+			SplitWord cur = words.get(i);
+			if (cur.getFlag().equals("w") || cur.getWord().equals("[")) {
+				i++;
+				continue;
 			}
 
-			// 获取下一词
-			nextWord = nextBigramWord(words);
-			if (currWord != null && nextWord != null) {
-				String biWord = currWord + "@" + nextWord;
-				addWordInfo(bigramWords, biWord, WordInfo.FIELD_TWOFREQ, 1);
+			i++;
+			SplitWord next = null;
+			while (i < words.size() && next == null) {
+				next = words.get(i);
+				if (next.getFlag().equals("w") || next.getWord().equals("[")
+						|| next.getWord().equals("]")) {
+					i++;
+					next = null;
+					continue;
+				}
+				break;
 			}
-			// 把下一词赋值给当前词
-			currWord = nextWord;
-			nextWord = null;
+
+			if (next != null) {
+				bigramWords.addWordInfo(cur.getWord(), next.getWord(), 1);
+			}
+
 		}
 	}
 
-	private int currentIndex = 0;
-
-	private String nextBigramWord(final List<SplitWord> words) {
-		if (currentIndex >= words.size())
-			return null;
-		SplitWord sw = words.get(currentIndex++);
-		String currWord = sw.getWord();
-
-		// 处理组合词 [ ]
-		if (compose && currWord.equals("[")) {
-			currWord = "";
-			while (currentIndex < words.size()) {
-				sw = words.get(currentIndex++);
-				if (sw.getWord().equals("]")) {
-					break;
-				}
-
-				currWord += sw.getWord();
-
-				String nxtWord = words.get(currentIndex).getWord();
-				if (!nxtWord.equals("]")) {
-					addWordInfo(bigramWords, sw.getWord() + "@" + nxtWord,
-							WordInfo.FIELD_TWOFREQ, 1);
-				}
-			}
-		}
-
-		if (!compose && currWord.equals("]")) {
-			return nextBigramWord(words);
-		}
-
-		String flag = sw.getFlag();
-		if (flag.equals("w")) {
-			if (currWord.equals("["))
-				return nextBigramWord(words);
-			// 标点符号去掉
-			return null;
-		}
-
-		// 如果是人名，则把人名合并
-
-		if (compose && flag.equalsIgnoreCase("nr")
-				&& currentIndex < words.size()) {
-			sw = words.get(currentIndex);
-			if (!sw.getFlag().equalsIgnoreCase("nr")) {
-				currWord += sw.getWord();
-				currentIndex++;
+	private void extractLexicalContext(final List<SplitWord> words) {
+		String flag = null;
+		for (Iterator<SplitWord> it = words.iterator(); it.hasNext();) {
+			SplitWord sw = it.next();
+			if (sw.getWord().equals("[") || sw.getWord().equals("]")) {
+				continue;
 			}
 
-		}
+			if (flag != null) {
+				lexicalInfo.addWordInfo(flag, sw.getFlag(), 1);
+			}
 
-		return currWord;
+			flag = sw.getFlag();
+		}
 	}
 
-	private void addWordInfo(Map<String, WordInfo> coreWords, String word,
-			String nature, int frq) {
-		natures.add(nature);
-		WordInfo info = coreWords.get(word);
-		if (info == null) {
-			info = new WordInfo(word);
+	private void extractComposedLexicalPatterns(List<SplitWord> words) {
+		for (int i = 0; i < words.size() - 1; i++) {
+			SplitWord sw = words.get(i);
+			if (sw.getFlag().equals(COMPOSE_START)) {
+				int j = i + 1;
+				StringBuilder sb = new StringBuilder();
+				for (; j < words.size(); j++) {
+					sw = words.get(j);
+					if (sw.getWord().equals("]")) {
+						composedInfo
+								.addWordInfo(sw.getFlag(), sb.toString(), 1);
+						break;
+					}
+					if (sb.length() > 0) {
+						sb.append("@");
+					}
+					sb.append(sw.getFlag());
+				}
+				i = j;
+			}
 		}
-		info.addNature(nature, frq);
-		coreWords.put(word, info);
 	}
 
 	public void prepairTrainTestData(String orign_data_dir, String out_dir)
@@ -550,25 +605,6 @@ public class PeopleDailyDataProcesser {
 		testRefer.close();
 
 		System.out.println(timer);
-	}
-
-	private void extractLexicalContext(final List<SplitWord> words) {
-		String flag = null;
-		for (Iterator<SplitWord> it = words.iterator(); it.hasNext();) {
-			SplitWord sw = it.next();
-			if (sw.getWord().equals("[")) {
-				continue;
-			} else if (sw.getWord().equals("]")) {
-				flag = sw.getFlag();
-				continue;
-			}
-
-			if (flag != null) {
-				addWordInfo(lexicalInfo, flag, sw.getFlag(), 1);
-			}
-
-			flag = sw.getFlag();
-		}
 	}
 
 	/**
@@ -624,16 +660,19 @@ public class PeopleDailyDataProcesser {
 	}
 
 	public static void main(String[] args) throws Exception {
+
 		MSTimer timer = new MSTimer();
 		PeopleDailyDataProcesser peopleDaily = new PeopleDailyDataProcesser();
-		// peopleDaily.preHandleCorpus("D:/autoseg/data/corpus/orign",
-		// "D:/autoseg/data/corpus/trian");
+		/*
+		 * peopleDaily.preHandleCorpus("D:/autoseg/data/corpus/orign",
+		 * "D:/autoseg/data/corpus/trian");
+		 */
 
-		//peopleDaily.prepairTrainTestData("D:/autoseg/data/corpus/trian",
-		//		"D:/autoseg/data/estimate/");
+		// peopleDaily.prepairTrainTestData("D:/autoseg/data/corpus/trian",
+		// "D:/autoseg/data/estimate/");
 
-		 peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
-				 "D:/autoseg/data/words/98/");
+		peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
+				"D:/autoseg/data/words/");
 
 		System.out.println("done!!used : " + timer);
 

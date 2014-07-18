@@ -29,6 +29,7 @@
     <ClInclude Include="DoubleArray.hpp" />
     <ClInclude Include="FileUtils.hpp" />
     <ClInclude Include="HashMapDef.hpp" />
+    <ClInclude Include="IntStrArray.hpp" />
     <ClInclude Include="InverseTokenizer.hpp" />
     <ClInclude Include="Matrix.hpp" />
     <ClInclude Include="MemLeaksCheck.h" />
@@ -38,6 +39,7 @@
     <ClInclude Include="NShortPath.hpp" />
     <ClInclude Include="PunctionDictionary.hpp" />
     <ClInclude Include="ResGuard.hpp" />
+    <ClInclude Include="Serializer.hpp" />
     <ClInclude Include="SparseInstance.hpp" />
     <ClInclude Include="SqureMatrix.hpp" />
     <ClInclude Include="StrUtils.hpp" />

@@ -129,15 +129,16 @@ public:
     {
         FILE * pfile = fopen(file.c_str(),"wb");
         assert(pfile != NULL);
+        Serializer serializer(pfile);
         bool result = false;
         int nature_size = natures.size();
-        if(!file_write_int32(pfile, DICT_SIGNATURE)
-                || !file_write_int32(pfile, nature_size)) {
+        if(!serializer.writeInt32(DICT_SIGNATURE)
+                || !serializer.writeInt32(nature_size)) {
             goto end_write;
         }
 
         for(int i = 0; i < nature_size; i++) {
-            TrieStrWriter(pfile, natures[i].c_str());
+            serializer.writeWstr(natures[i]);
         }
 
         if(!datrie.writeToFile(pfile)) {
@@ -164,25 +165,23 @@ private:
     void readFromFile(FILE * pfile)
     {
         // read header
+        Serializer serializer(pfile);
         int signature;
-        if(!file_read_int32(pfile, &signature) || signature != DICT_SIGNATURE) {
+        if((signature = serializer.readInt32()) != DICT_SIGNATURE) {
             assert(false);
             return;
         }
 
         // read Natures.
-        int nature_size;
-        if(!file_read_int32(pfile, &nature_size)
-                || nature_size > 0x0fffffff
+        int nature_size = serializer.readInt32();
+        if( nature_size > 0x0fffffff
                 || nature_size < 0) {
             assert(false);
             return;
         }
-
+        wchar_t buf[512];
         for(int i = 0; i < nature_size; i++) {
-            wchar_t * nature = (wchar_t *)TrieStrReader(pfile);
-            addNature(nature);
-            TrieStrFreer(nature);
+            addNature(serializer.readWstr(buf));
         }
         // read dat
         datrie.readFromFile(pfile);
@@ -228,9 +227,11 @@ public:
     {
         if(from < natures.size() || to < natures.size()) {
             const WordNature * fromInfo = getWordInfo(natures[from]);
-            double toFreq = fromInfo->getAttrValue(to) + 1.0;
-            double FromTotal = fromInfo->sumOfValues() + 44.0;
-            return toFreq / FromTotal;
+            if(fromInfo){
+                double toFreq = fromInfo->getAttrValue(to) + 1.0;
+                double FromTotal = fromInfo->sumOfValues() + 44.0;
+                return toFreq / FromTotal;
+            }
         }
 
         return 0.000001;
@@ -293,14 +294,64 @@ public:
             UTF8FileReader reader(files[i]);
             wstring * line;
             while((line = reader.getLine())){
-                if(!getWordInfo(*line)){
-                    WordNature *nature = new WordNature();
-                    nature->setAttrValue(udf_idx, 1);
-                    user_datrie.add(*line, nature);
-                    count ++;
-                    if(count % 1000 == 0){
-                        cout<<"\r added -> "<<count;
+                wstring::size_type wordIndex = line->find_first_of(wordSeperator);
+                wstring word;
+                wstring wordinfo;
+                if(wordIndex == wstring::npos){
+                    word = *line;
+                }else{
+                    word = line->substr(0, wordIndex);
+                    if(wordIndex < line->length()){
+                        wordinfo = line->substr(wordIndex + 1);
                     }
+                }
+                if(wordinfo.empty()){
+                    if(!getWordInfo(word)){
+                        WordNature *nature = new WordNature();
+                        nature->setAttrValue(udf_idx, 1);
+                        user_datrie.add(word, nature);
+                        count ++;
+                    }
+                }else{
+                    WordNature * info = new WordNature();
+                    vector<wstring> infos;
+                    split(wordinfo, natureSeperator, infos);
+                    for(int i = 0; i < infos.size(); i++) {
+                        wstring::size_type freqIndex = infos[i].find_first_of(freqSeperator);
+                        wstring nature;
+                        int d_freq = 1;
+                        if(freqIndex == wstring::npos){
+                            nature = infos[i];
+                        }else{
+                            nature = infos[i].substr(0,freqIndex);
+                            wstring freq = infos[i].substr(freqIndex + 1);
+                            d_freq = wcstol(freq.c_str(), NULL, 10);
+                        }
+
+                        int index = getNatureIndex(nature);
+                        if(index == -1) {
+                            wcerr<<L"The nature not exist in nature list of the file header:"
+                                <<nature<<" line:"<<*line<<endl;
+                            addNature(nature);
+                            index = getNatureIndex(nature);
+                        }
+                        info->setAttrValue(index, d_freq);
+                    }
+
+                    WordNature * natures = (WordNature *)getWordInfo(word);
+                    if(natures == NULL) {
+                        user_datrie.add(word, info);
+                    } else {
+                        for(int i = 0; i< info->numValues(); i++) {
+                            int freq = info->valueAt(i) + natures->getAttrValue(info->attrAt(i));
+                            natures->setAttrValue(info->attrAt(i), freq);
+                        }
+                        delete info;
+                    }
+                }
+                
+                if(count % 1000 == 0){
+                    cout<<"\r added -> "<<count;
                 }
             }
            

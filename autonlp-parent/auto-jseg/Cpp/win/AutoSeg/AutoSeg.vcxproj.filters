@@ -117,6 +117,12 @@
     <ClInclude Include="Viterbi.hpp">
       <Filter>头文件\Seg</Filter>
     </ClInclude>
+    <ClInclude Include="IntStrArray.hpp">
+      <Filter>头文件\DAT</Filter>
+    </ClInclude>
+    <ClInclude Include="Serializer.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">

@@ -22,6 +22,7 @@
 #include <vector>
 #include "TrieDef.hpp"
 #include "MemLeaksCheck.h"
+#include "Serializer.hpp"
 
 
 using namespace std;
@@ -236,12 +237,13 @@ public:
 
     bool writeToFile(FILE * file)
     {
-        if (!file_write_int32 (file, DA_SIGNATURE) ||
-                !file_write_int32 (file, num_cells)) {
+        Serializer serializer(file);
+        if (!serializer.writeInt32(DA_SIGNATURE) ||
+                !serializer.writeInt32 (num_cells)) {
             return false;
         }
 
-        if(fwrite(_cell, sizeof(Cell), num_cells, file) != num_cells) {
+        if(!serializer.write(_cell, sizeof(Cell), num_cells)) {
             assert(false);
             return false;
         }
@@ -252,23 +254,23 @@ public:
     bool readFromFile(FILE * file)
     {
         long pos = ftell(file);
-        int sig;
-        if(!file_read_int32(file, &sig)
-                || sig != DA_SIGNATURE
-                || !file_read_int32(file, &num_cells)) {
+        Serializer serializer(file);
+        int sig = serializer.readInt32();
+        if(sig != DA_SIGNATURE) {
             cerr<<"error: read Double Array signature failed!!!"<<endl;
             cerr<<"DA_SIG="<<DA_SIGNATURE<<" read sig ="<<sig<<endl;
             goto exist_read;
         }
-
+        
         free(_cell);
+        num_cells = serializer.readInt32();
         _cell = (Cell *) malloc(num_cells * sizeof(Cell));
         if(!_cell) {
             cerr<<"error: malloc cells failed!!!"<<endl;
             goto exist_read;
         }
 
-        if(fread(_cell, sizeof(Cell), num_cells, file) != num_cells) {
+        if(!serializer.read(_cell, sizeof(Cell), num_cells)) {
             cerr<<"error: read cell failed!!!"<<endl;
             goto exist_read;
         }

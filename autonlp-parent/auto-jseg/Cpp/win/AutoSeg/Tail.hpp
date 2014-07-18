@@ -38,6 +38,11 @@
 using namespace std;
 namespace mingspy
 {
+
+// A help class used to 
+// make the suffix be safe-use.
+
+
 class Tail
 {
 
@@ -46,8 +51,7 @@ class Tail
     public :
         int next_free;
         void * data;
-        int * suffix;
-        int suffix_len;
+        wchar_t * suffix;
     };
 
 private:
@@ -114,7 +118,7 @@ public:
      *         Get suffix from tail with given index. The returned string is
      *         allocated. The caller should free it with free().
      */
-    inline int * getSuffix(int index) const
+    inline const wchar_t * getSuffix(int index) const
     {
         index -= TAIL_START_BLOCKNO;
         return (index < num_tails) ? tails[index].suffix : NULL;
@@ -131,29 +135,29 @@ public:
      *            : the suffix to be set, notice:the suffix[len - 1] must be zero.
      * @param len : the len of suffix.
      */
-    bool setSuffix(int index, const int * suffix, int len)
+    bool setSuffix(int index, const wstring & suffix)
     {
         index -= TAIL_START_BLOCKNO;
+        
         if (index < num_tails) {
             /*
              * suffix and tails[index].suffix may overlap; so, dup it before
              * it's overwritten
              */
-
-            int * tmp = NULL;
+            int size = suffix.length() + 1;
+            wchar_t * tmp = NULL;
             if(!_pmem) {
-                tmp = new int[len];
+                tmp = new wchar_t[size];
             } else {
-                tmp = (int *)_pmem->allocAligned((len ) * sizeof(int));
+                tmp = (wchar_t *)_pmem->allocAligned((size)*sizeof(wchar_t));
             }
-            memcpy(tmp, suffix, (len+1)*sizeof(int));
-
+            memcpy(tmp, suffix.c_str(), (size)*sizeof(wchar_t));
             if(tails[index].suffix != NULL&&!_pmem) {
                 delete [] tails[index].suffix;
             }
 
             tails[index].suffix = tmp;
-            tails[index].suffix_len = len;
+            //tails[index].suffix_len = len;
             return true;
         }
         return false;
@@ -167,10 +171,10 @@ public:
      * @param len : the len of suffix.
      * @return the index of the newly added suffix.
      */
-    int addSuffix(const int * suffix, int len)
+    int addSuffix(const wstring & suffix)
     {
         int new_block = allocBlock();
-        setSuffix(new_block, suffix, len);
+        setSuffix(new_block, suffix);
         return new_block;
     }
 
@@ -255,7 +259,7 @@ public:
      */
     int walkStr(int s, int * suffix_idx, wchar_t * str, int len)
     {
-        int * suffix = getSuffix(s);
+        const wchar_t * suffix = getSuffix(s);
         if (suffix == NULL)
             return 0;
 
@@ -296,7 +300,7 @@ public:
     {
         int suffix_char;
 
-        int * suffix = getSuffix(s);
+        const wchar_t * suffix = getSuffix(s);
         if (suffix == NULL)
             return false;
 
@@ -315,13 +319,14 @@ public:
     */
     bool writeToFile(FILE * file)
     {
-        if (!file_write_int32 (file, TAIL_SIGNATURE) ||
-                !file_write_int32 (file, first_free)  ||
-                !file_write_int32 (file, num_tails)) {
+        Serializer serializer(file);       
+        if (!serializer.writeInt32(TAIL_SIGNATURE) ||
+                !serializer.writeInt32(first_free)  ||
+                !serializer.writeInt32(num_tails)) {
             return false;
         }
 
-        if(fwrite(tails, sizeof(TailBlock), num_tails, file) != num_tails) {
+        if(!serializer.write(tails, sizeof(TailBlock), num_tails)) {
             return false;
         }
 
@@ -331,7 +336,9 @@ public:
             }
 
             if(tails[i].suffix != NULL) {
-                fwrite(tails[i].suffix, sizeof(int), tails[i].suffix_len, file);
+                int len = wcslen(tails[i].suffix);
+                serializer.writeInt16(len);
+                serializer.writeWstrData(tails[i].suffix, len);
             }
         }
 
@@ -340,43 +347,41 @@ public:
 
     bool readFromFile(FILE * file)
     {
-        long    save_pos;
-        int i;
-        int sig;
-
+        long save_pos = ftell (file);
+        int suffixlen;
+        Serializer serializer(file);
         /* check signature */
-        save_pos = ftell (file);
-        if (!file_read_int32 (file, &sig) || TAIL_SIGNATURE != sig)
+        int sig;
+        if ((sig = serializer.readInt32()) != TAIL_SIGNATURE)
             goto exit_file_read;
         clear();
 
-        if (!file_read_int32 (file, &first_free) ||
-                !file_read_int32 (file, &num_tails)) {
-            goto exit_file_read;
-        }
+        first_free = serializer.readInt32();
+        num_tails = serializer.readInt32();
         if (num_tails > SIZE_MAX / sizeof (TailBlock))
             goto exit_file_read;
         tails = (TailBlock *) malloc (num_tails * sizeof (TailBlock));
         if (!tails)
             goto exit_file_read;
 
-        if(fread(tails, sizeof(TailBlock), num_tails, file) != num_tails) {
+        if(!serializer.read(tails, sizeof(TailBlock), num_tails)) {
             free(tails);
             goto exit_file_read;
         }
+        int i = 0;
         for (i = 1; i < num_tails; i++) {
             if(tails[i].data != NULL) {
                tails[i].data = _data_reader(file);
             }
 
             if(tails[i].suffix != NULL) {
+                suffixlen = serializer.readInt16();
                 if(_pmem){
-                    tails[i].suffix = (int * )_pmem->allocAligned(tails[i].suffix_len*sizeof(int));
+                    tails[i].suffix = (wchar_t * )_pmem->allocAligned((suffixlen+1)*sizeof(wchar_t));
                 }else{
-                    tails[i].suffix = new int[tails[i].suffix_len];
+                    tails[i].suffix = new wchar_t[suffixlen+1];
                 }
-                if(fread(tails[i].suffix, sizeof(int), tails[i].suffix_len, file) 
-                    != tails[i].suffix_len) {
+                if(!serializer.readWstrData(suffixlen,tails[i].suffix)) {
                     goto exit_in_loop;
                 }
             }

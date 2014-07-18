@@ -23,6 +23,8 @@
 #include "FileUtils.hpp"
 #include "MemoryPool.hpp"
 #include "MemLeaksCheck.h"
+#include "IntStrArray.hpp"
+#include "Serializer.hpp"
 
 using namespace std;
 
@@ -35,24 +37,9 @@ const int TRIE_INDEX_ERROR = 0;
 const void * TRIE_DATA_ERROR = NULL;
 const int TRIE_CHILD_MAX = 65536; // how many children a char can have in dat.
 
-/**
-* The length of a TrieStr
-
-int TrieStrLen(const TrieChar * str)
-{
-    if(str != NULL)
-    {
-        const TrieChar * p = str;
-        int len = 0;
-        while(*p++ != TrieChar(0))
-        {
-            len ++;
-        }
-        return len;
-    }
-    return 0;
-}
-*/
+const wchar_t wordSeperator = L'\t';
+const wstring natureSeperator = L",";
+const wchar_t freqSeperator = L':';
 
 /**
 * Tail data delete call back functions
@@ -83,18 +70,8 @@ typedef void *(*TailDataReader)(FILE * file);
 void TrieStrWriter(FILE * file, const void * str)
 {
     if(str != NULL) {
-        wstring wstr = (wchar_t *)str;
-        int len = wstr.length() + 1;
-        assert(len < 0xffff);
-        if(!file_write_int16(file, len)) {
-            assert(false);
-        }
-        int * buf = new int[len];
-        wcharToIntArray(wstr.c_str(), len - 1, buf, len);
-        if(fwrite(buf, sizeof(int), len, file) != len) {
-            assert(false);
-        }
-        delete [] buf;
+        Serializer serializer(file);
+        serializer.writeWstr(static_cast<const wchar_t *>(str));
     } else {
         assert(false);
     }
@@ -107,27 +84,8 @@ void TrieStrWriter(FILE * file, const void * str)
 */
 void * TrieStrReader(FILE * file)
 {
-    unsigned short len;
-    if(!file_read_int16(file, (short *)&len)) {
-        assert(false);
-        return NULL;
-    }
-    int *buf = new int[len];
-    wchar_t * str = new wchar_t[len];
-    
-
-    if(fread(buf, sizeof(int), len, file) != len) {
-        assert(false);
-        delete [] buf;
-        delete [] str;
-        return NULL;
-    }
-
-    for(int i = 0; i < len; i++){
-        str[i] = (wchar_t)buf[i];
-    }
-    delete [] buf;
-    return str;
+    Serializer serializer(file);
+    return serializer.readWstr();
 }
 }
 

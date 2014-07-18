@@ -3,6 +3,7 @@ package com.mingspy.utils.io;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,14 +32,24 @@ public class LineFileReader {
 	public LineFileReader(String path, String coding) {
 		try {
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), coding));
-			addDefaultAnotation();
+			//addDefaultAnotation();
+		} catch (Exception e) {
+			reader = null;
+		}
+		
+	}
+	
+	public LineFileReader(File file, String coding) {
+		try {
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), coding));
+			//addDefaultAnotation();
 		} catch (Exception e) {
 			reader = null;
 		}
 		
 	}
 
-	private void addDefaultAnotation() {
+	public void addDefaultAnotation() {
 		annotations.add("#");
 		annotations.add("//");
 		//annotations.add("/*");

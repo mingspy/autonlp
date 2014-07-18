@@ -68,20 +68,7 @@ string wc2c(wchar_t t)
     return string(ch);
 }
 
-void wcharToIntArray(const wchar_t * suffix, int len, int * buf, int buf_len){
-    for( int i = 0; i < len && i < buf_len - 1; i++){
-        buf[i] = suffix[i];
-    }
-    buf[buf_len - 1] = 0;
-}
 
-inline int suffixLen(int * suffix){
-    int len = 0;
-    while(*suffix++){
-        len++;
-    }
-    return len;
-}
 #if _MSC_VER > 1000
 wstring Utf8ToUnicode( const string& str )
 {

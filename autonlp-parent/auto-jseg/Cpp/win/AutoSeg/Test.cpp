@@ -31,6 +31,7 @@
 #include "MSTimer.hpp"
 #include "InverseTokenizer.hpp"
 #include "AutoTokenizer.hpp"
+#include "Configuration.hpp"
 
 using namespace std;
 using namespace mingspy;
@@ -142,15 +143,41 @@ void testMatrix()
     assert(matrix.val(3,3) == 0);
 }
 
-void testWordDictionary()
+void testDict(){
+    Dictionary d;
+    d.addWordInfo(L"中国",new WordNature());
+    d.addWordInfo(L"中国人",new WordNature());
+    d.addWordInfo(L"中国人民解放军",new WordNature());
+    d.addWordInfo(L"中国",new WordNature());
+    const WordNature * info = d.getWordInfo(L"中国");
+    if(info != NULL){
+        cout<<*info<<endl;
+    }else{
+        cout<<"not found."<<endl;
+    }
+}
+void testCoreDictionary()
 {
     //DictFileBuilder::buildDict("..\\data\\coreWordInfo.txt","..\\data\\core.dic");
 
     MSTimer timer;
-    Dictionary * dict = new Dictionary("..\\data\\core.dic");
+    Dictionary * dict = new Dictionary(Configuration::instance().getString(KEY_CORE_PATH));
     cout<<"load dictionary"<<timer<<endl;
-    cout<<*dict->getWordInfo(L"咨询")<<endl;
+    const WordNature * info = dict->getWordInfo(L"中国");
+    if(info != NULL){
+        cout<<*info<<endl;
+    }else{
+        cout<<"not found."<<endl;
+    }
 
+    dict->addWordInfo(L"中国", new WordNature());
+
+    info = dict->getWordInfo(L"中国");
+    if(info != NULL){
+        cout<<*info<<endl;
+    }else{
+        cout<<"not found."<<endl;
+    }
     timer.restart();
     delete dict;
     cout<<"unload dictionary"<<timer<<endl;
@@ -189,7 +216,23 @@ void printHelp(const char * name)
         <<"\t -t   :default core.dic should place in ../data/"<<endl;
 }
 
+void testPosTagging(){
+    vector<string> files;
+    files.push_back("../testwords.txt");
+    //DictFileBuilder::buildDict(files, "../test.dic");
+    AutoTokenizer autoSeg;
+    vector<Token> results;
+    //autoSeg.biGramSplit(L"典守者具体地说", results);
+    autoSeg.posTagging(L"李岚清将在年会期间出席中国经济专题讨论会和世界经济论坛关于中国经济问题的全会，并在全会上发表演讲。他还将在这里会见世界经济论坛主席施瓦布和出席本次年会的联合国秘书长安南、瑞士联邦主席兼外长科蒂、一些其他国家的国家元首和政府首脑以及国际组织的领导人，并同他们就中国和世界经济发展问题交换看法。", results);
+    Tokenizer::printTokens(results);
+}
 
+void testDicBuilder(){
+    vector<string> files;
+    files.push_back("d:/autoseg/data/words/corewords.txt");
+    DictFileBuilder::buildDict(files, "d:/autoseg/data/ddd.dic");
+    wcout<<L"Press enter to return."<<endl;
+}
 int main(int argc, char ** argv)
 {
 #if _MSC_VER > 1000
@@ -197,14 +240,13 @@ int main(int argc, char ** argv)
 #else
     cout<<"not running on windows!"<<endl;
 #endif
-    vector<string> files;
-    files.push_back("../testwords.txt");
-    //DictFileBuilder::buildDict(files, "../test.dic");
-    AutoTokenizer autoSeg;
-    vector<Token> results;
-    autoSeg.biGramSplit(L"典守者具体地说", results);
-    Tokenizer::printTokens(results);
-    wcout<<L"Press enter to return."<<endl;
-    getchar();
+    //CheckMemLeaks();
+    {
+        testCoreDictionary();
+        //testDict();
+        
+        getchar();
+    }
+    
     return 0;
 }

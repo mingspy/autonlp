@@ -116,11 +116,11 @@ class Tokenizer: public ITokenizer
 public:
     Tokenizer()
     {
-        MAX_NPATH = Configuration::instance().getInt("MAX_NPATH", 8);
+        MAX_NPATH = Configuration::instance().getInt("MAX_NPATH", 6);
         TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 9000000);
         UNIGRAM_SMOTH_PROB = Configuration::instance().getDouble("UNIGRAM_SMOTH_PROB", 1.0/TOTAL_FREQ);
         BIGRAM_SMOTH_FACTOR = Configuration::instance().getDouble("BIGRAM_SMOTH_FACTOR", 0.2);
-        cout<<"BIGRAM_SMOTH_FACTOR = "<<BIGRAM_SMOTH_FACTOR<<endl;
+        //cout<<"BIGRAM_SMOTH_FACTOR = "<<BIGRAM_SMOTH_FACTOR<<endl;
     }
 
     /*

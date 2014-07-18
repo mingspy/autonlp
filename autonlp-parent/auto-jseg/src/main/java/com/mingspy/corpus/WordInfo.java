@@ -47,4 +47,8 @@ public class WordInfo {
 		return sum;
 	}
 	
+	public void clear(){
+		natures.clear();
+	}
+	
 }

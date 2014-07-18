@@ -285,17 +285,18 @@ public:
     static void DoWriteSIToFile(FILE * file, const SparseInstance<T> * data)
     {
         long old_pos = ftell(file);
+        Serializer serializer(file);
         if(data != NULL) {
-            if(!file_write_int32(file, data->m_NumValues)) {
+            if(!serializer.writeInt32(data->m_NumValues)) {
                 goto exit_write;
             }
 
             if(data->m_NumValues > 0) {
-                if(fwrite(data->m_Indices, sizeof(int), data->m_NumValues, file) != data->m_NumValues) {
+                if(!serializer.write(data->m_Indices, sizeof(int), data->m_NumValues)) {
                     goto exit_write;
                 }
 
-                if(fwrite(data->m_AttValues, sizeof(T), data->m_NumValues, file) != data->m_NumValues) {
+                if(!serializer.write(data->m_AttValues, sizeof(T), data->m_NumValues)) {
                     goto exit_write;
                 }
             }
@@ -311,28 +312,20 @@ exit_write:
     static SparseInstance<T> * DoReadSIFromFile(FILE * file)
     {
         long old_pos = ftell(file);
-        int num = 0;
-        SparseInstance<T> * inst = NULL;
-
-        if(!file_read_int32(file, &num)) {
-            goto exit_read;
-        }
-
-
-        inst = new SparseInstance<T>();
+        Serializer serializer(file);
+        int num = serializer.readInt32();
+        SparseInstance<T> * inst = new SparseInstance<T>();
    
         inst->_sumVs = ZERO;
         inst->m_NumValues = num;
         if(num > 0) {
             inst->m_Indices = new int[num];
-            if(fread(inst->m_Indices, sizeof(int), inst->m_NumValues, file) != inst->m_NumValues) {
+            if(!serializer.read(inst->m_Indices, sizeof(int), inst->m_NumValues)) {
                 goto exit_read_inst;
             }
 
             inst->m_AttValues = new T[num];
-
-
-            if(fread(inst->m_AttValues, sizeof(T), inst->m_NumValues, file) != inst->m_NumValues) {
+            if(!serializer.read(inst->m_AttValues, sizeof(T), inst->m_NumValues)) {
                 goto exit_read_inst;
             }
         }

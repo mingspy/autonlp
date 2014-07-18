@@ -315,10 +315,7 @@ private:
 
         if (0 != *suffix)
             ++suffix;
-        const int len = wcslen(suffix);
-        int buf[512];
-        wcharToIntArray(suffix, len, buf,len+1);
-        new_tail = _tail.addSuffix(buf, len + 1);
+        new_tail = _tail.addSuffix(suffix);
         _tail.setData(new_tail, data);
         setTailIndex(new_da, new_tail);
 
@@ -331,12 +328,12 @@ private:
 
         /* adjust separate point in old path */
         int old_tail = getTailIndex(sep_node);
-        int * old_suffix = _tail.getSuffix(old_tail);
+        const wchar_t * old_suffix = _tail.getSuffix(old_tail);
         if (old_suffix == NULL)
             return false;
 
         int s = sep_node;
-        int * p = old_suffix;
+        const wchar_t * p = old_suffix;
         for (; *p == *suffix; p++, suffix ++) {
             int t = _da.insertBranch(s, *suffix);
             if (TRIE_INDEX_ERROR == t) {
@@ -358,7 +355,7 @@ private:
         // save old left suffix.
         if (0 != *p)
             ++p;
-        _tail.setSuffix(old_tail, p, suffixLen(p));
+        _tail.setSuffix(old_tail, p);
         setTailIndex(old_da, old_tail);
 
         /* insert the new branch at the new separate point */
