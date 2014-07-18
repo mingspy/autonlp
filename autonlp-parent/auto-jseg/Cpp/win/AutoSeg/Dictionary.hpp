@@ -27,6 +27,7 @@
 
 #include "HashMapDef.hpp"
 #include <string>
+#include "Configuration.hpp"
 
 using namespace std;
 
@@ -120,6 +121,9 @@ public:
         return 0;
     }
 
+    double getProb(const wstring & word) const {
+        return (getTotalFreq(word) + 1.0) / TOTAL_FREQ;
+    }
     virtual bool existPrefix(const wstring & prefix) const
     {
         return datrie.containsPrefix(prefix);
@@ -160,6 +164,7 @@ private:
         datrie.getTail().setDataFreer(WordNatureFreer);
         datrie.getTail().setDataReader(WordNatureReader);
         datrie.getTail().setDataWriter(WordNatureWriter);
+        TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 9000000);
     }
 
     void readFromFile(FILE * pfile)
@@ -192,6 +197,7 @@ protected:
     vector<wstring> natures;
     hash_map<wstring, int> nature_index;
     MemoryPool<> mem_pool;
+    double TOTAL_FREQ;
 
 };
 

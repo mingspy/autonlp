@@ -161,7 +161,7 @@ public:
     {
         Graph wordGraph;
         // get all words
-        genWordGraph(DictFactory::CoreDict(), str, wordGraph);
+        genWordGraph(DictFactory::CoreDict(), str, wordGraph, true);
 
         doNShotPath(wordGraph, str, result);
     }
@@ -355,7 +355,7 @@ protected:
                 if((info = dict.getWordInfo(word))) {
                     double totalfrequnce = UNIGRAM_SMOTH_PROB;
                     if(queryFreqTotal) {
-                        totalfrequnce = (dict.getTotalFreq(word) + 1.0) / TOTAL_FREQ;
+                        totalfrequnce = dict.getProb(word);
                     }
                     graph.setVal(atoms[i]._off, atoms[j]._off + atoms[j]._len, totalfrequnce);
                     lastj = j;
@@ -365,7 +365,8 @@ protected:
             }
 
             // add word that not exist in dictionary.
-            graph.setVal(atoms[i]._off, atoms[i]._off + atoms[i]._len, UNIGRAM_SMOTH_PROB);
+            if(lastj < i)
+                graph.setVal(atoms[i]._off, atoms[i]._off + atoms[i]._len, UNIGRAM_SMOTH_PROB);
 
         }
 #if _DEBUG
@@ -424,8 +425,9 @@ protected:
     }
 private:
     int MAX_NPATH;
-    double TOTAL_FREQ;
+    
     double UNIGRAM_SMOTH_PROB;
     double BIGRAM_SMOTH_FACTOR;
+    double TOTAL_FREQ;
 };
 }

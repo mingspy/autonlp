@@ -21,7 +21,7 @@ public class JsegTest {
 		System.out.println("------------------------------------------------------------");
 		doTestSplit(ss1);
 		System.out.println("mixSplit=>"+tokenizer.mixSplit("奥迪q7多少钱"));
-		System.out.println(tokenizer.maxSplit("中国人民解放军"));
+		System.out.println(tokenizer.maxSplit("中国"));
 	}
 
 	private void doTestSplit(String ss) {

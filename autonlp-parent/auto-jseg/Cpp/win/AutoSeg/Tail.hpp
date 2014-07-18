@@ -404,14 +404,21 @@ private:
     {
         if(tails != NULL) {
            
-            for(int i = 1; i < num_tails; i++) {
-                if(tails[i].data != NULL&& _data_freer) {
-                    _data_freer(tails[i].data);
+            if(_data_freer){
+                for(int i = 1; i < num_tails; i++) {
+                    if(tails[i].data != NULL) {
+                        _data_freer(tails[i].data);
+                    }
                 }
+            }
 
-                if(tails[i].suffix != NULL&&!_pmem) {
-                    delete [] tails[i].suffix;
+            if(!_pmem) {
+                for(int i = 1; i < num_tails; i++) {
+                    if(tails[i].suffix != NULL) {
+                        delete [] tails[i].suffix;
+                    }
                 }
+                
             }
             
             free(tails);

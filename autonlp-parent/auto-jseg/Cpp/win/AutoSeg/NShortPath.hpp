@@ -71,10 +71,22 @@ int compare(const void *a, const void *b)
     RoadSign *pa = (RoadSign*)a;
     RoadSign *pb = (RoadSign*)b;
     double deta = pa->_weight- pb->_weight;
-    return deta == 0? 0:(deta > 0?1:-1);  //从小到大排序
+    return deta == 0? 0:(deta > 0?1:-1);  //sort ASC
 }
 
-typedef SparseInstance<int> Path;
+class Path:public SparseInstance<int>
+{
+public:
+    void setScore(double score){
+        _score = score;
+    }
+    double getScore(){
+        return score;
+    }
+private:
+    double _score;
+};
+
 typedef MinHeap<RoadSign> Signs;
 
 class Paths
@@ -84,6 +96,7 @@ public:
     {
         return _paths[idx];
     }
+ 
 private:
     hash_map<int,Signs> _paths;
 };
@@ -110,12 +123,16 @@ public:
         for(int i = 0; i < m_lastIndex; i++) {
             // 节点能到达的路径，更新路径值
             SparseInstance<double> &ins = m_graphRef[i];
+            // 取出一个节点
             for(int j = ins.numValues() - 1; j >= 0; j--) {
+                // 该节点能到达的路径
                 int to = ins.attrAt(j);
                 double weight = -log(ins.valueAt(j));
+                // 能到达当前路径的所有节点的累加值
                 Signs & prevPaths = m_paths[i];
                 for( int k = 0; k < prevPaths.size(); k++) {
                     RoadSign & node = prevPaths.Get(k);
+                    // 更新路径
                     m_paths[to].ConditionAdd(RoadSign(i,k, weight + node._weight));
                 }
             }
@@ -129,6 +146,7 @@ public:
     {
         if(m_isCalced && ith < m_maxPaths) {
             int to = m_lastIndex;
+            path.setScore(m_paths[to].Get(ith)._weight);
             for(int i = 0; i <= m_lastIndex; i++) {
                 RoadSign &node = m_paths[to].Get(ith);
                 path.setAttrValue(node._from,to);

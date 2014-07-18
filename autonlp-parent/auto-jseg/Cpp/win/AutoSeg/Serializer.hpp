@@ -122,10 +122,9 @@ namespace mingspy{
             bool selfAllocated = false;
             if(buf == NULL){
                 buf = new wchar_t[len + 1];
-                buf[len] = 0;
                 selfAllocated = true;
             }
-
+            buf[len] = 0;
             
             if(len > 0){
                 int *tmp = new int[len+1];

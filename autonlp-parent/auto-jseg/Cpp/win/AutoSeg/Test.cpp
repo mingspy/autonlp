@@ -242,9 +242,11 @@ int main(int argc, char ** argv)
 #endif
     //CheckMemLeaks();
     {
-        testCoreDictionary();
+        //testCoreDictionary();
         //testDict();
-        
+        vector<Token> result;
+        Tokenizer tokenizer;
+        tokenizer.uniGramSplit(L"他说的确实在理", result);
         getchar();
     }
     
