@@ -22,6 +22,7 @@
 #include "SparseInstance.hpp"
 #include <math.h>
 #include "MinHeap.hpp"
+#include "Token.hpp"
 using namespace std;
 
 
@@ -80,8 +81,9 @@ public:
     void setScore(double score){
         _score = score;
     }
+
     double getScore(){
-        return score;
+        return _score;
     }
 private:
     double _score;
@@ -142,6 +144,21 @@ public:
 
     }
 
+    bool getBestResult(int ith, vector<Token> & result, double *score = NULL){
+        Path p;
+        if(!getBestPath(ith, p)) return false;
+        if(score){
+            *score = p.getScore();
+        }
+        for(int i = 0; i < p.numValues(); i ++) {
+            int start = p.attrAt(i);
+            int len = p.valueAt(i) - start;
+            result.push_back(Token(start, len));
+        }
+        return true;
+    }
+
+private:
     bool getBestPath(int ith,Path & path)
     {
         if(m_isCalced && ith < m_maxPaths) {

@@ -123,6 +123,9 @@
     <ClInclude Include="Serializer.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
+    <ClInclude Include="Token.hpp">
+      <Filter>头文件\Seg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test.cpp">

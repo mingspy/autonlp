@@ -164,7 +164,7 @@ private:
         datrie.getTail().setDataFreer(WordNatureFreer);
         datrie.getTail().setDataReader(WordNatureReader);
         datrie.getTail().setDataWriter(WordNatureWriter);
-        TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 9000000);
+        TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 10000000);
     }
 
     void readFromFile(FILE * pfile)

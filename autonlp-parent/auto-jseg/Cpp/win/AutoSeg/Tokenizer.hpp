@@ -24,21 +24,11 @@
 #include "Matrix.hpp"
 #include "NShortPath.hpp"
 #include "Viterbi.hpp"
+#include "Token.hpp"
 using namespace std;
 
 namespace mingspy
 {
-
-struct Token {
-    int _attr; // type of this token or attribute index.
-    int _off; // start index.
-    int _len; // len
-    //wstring _word; // maybe empty
-    Token(int start = 0, int len = 0, int attr = 0)
-        :_off(start),_len(len),_attr(attr)
-    {
-    }
-};
 
 
 class ITokenizer
@@ -117,7 +107,7 @@ public:
     Tokenizer()
     {
         MAX_NPATH = Configuration::instance().getInt("MAX_NPATH", 6);
-        TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 9000000);
+        TOTAL_FREQ = Configuration::instance().getInt("TOTAL_FREQ", 10000000);
         UNIGRAM_SMOTH_PROB = Configuration::instance().getDouble("UNIGRAM_SMOTH_PROB", 1.0/TOTAL_FREQ);
         BIGRAM_SMOTH_FACTOR = Configuration::instance().getDouble("BIGRAM_SMOTH_FACTOR", 0.2);
         //cout<<"BIGRAM_SMOTH_FACTOR = "<<BIGRAM_SMOTH_FACTOR<<endl;
@@ -415,13 +405,19 @@ protected:
         NShortPath shortPath(wordGraph, MAX_NPATH, str.length());
         shortPath.calcPaths();
 
-        Path p;
-        if(!shortPath.getBestPath(0, p)) return;
-        for(int i = 0; i < p.numValues(); i ++) {
-            int start = p.attrAt(i);
-            int len = p.valueAt(i) - start;
-            result.push_back(Token(start, len));
+        double score = 0;
+        shortPath.getBestResult(0, result, &score);
+#if _DEBUG
+        cout<<0<<"\t"<<score<<" ";
+        printTokens(result);
+        for(int i = 1; i < MAX_NPATH; i++ ){
+            result.clear();
+            shortPath.getBestResult(i, result, &score);
+
+            cout<<i<<"\t"<<score<<" ";
+            printTokens(result);
         }
+#endif
     }
 private:
     int MAX_NPATH;
