@@ -41,6 +41,7 @@
     <ClInclude Include="ResGuard.hpp" />
     <ClInclude Include="Serializer.hpp" />
     <ClInclude Include="SparseInstance.hpp" />
+    <ClInclude Include="SplitResult.hpp" />
     <ClInclude Include="SqureMatrix.hpp" />
     <ClInclude Include="StrUtils.hpp" />
     <ClInclude Include="Tail.hpp" />

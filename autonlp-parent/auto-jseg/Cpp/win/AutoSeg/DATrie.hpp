@@ -42,7 +42,8 @@ public:
         _tail.setDataFreer(fn);
     }
 
-    Tail & getTail(){
+    Tail & getTail()
+    {
         return _tail;
     }
 

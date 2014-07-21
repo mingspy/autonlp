@@ -78,11 +78,13 @@ int compare(const void *a, const void *b)
 class Path:public SparseInstance<int>
 {
 public:
-    void setScore(double score){
+    void setScore(double score)
+    {
         _score = score;
     }
 
-    double getScore(){
+    double getScore()
+    {
         return _score;
     }
 private:
@@ -98,7 +100,7 @@ public:
     {
         return _paths[idx];
     }
- 
+
 private:
     hash_map<int,Signs> _paths;
 };
@@ -144,10 +146,11 @@ public:
 
     }
 
-    bool getBestResult(int ith, vector<Token> & result, double *score = NULL){
+    bool getBestResult(int ith, vector<Token> & result, double *score = NULL)
+    {
         Path p;
         if(!getBestPath(ith, p)) return false;
-        if(score){
+        if(score) {
             *score = p.getScore();
         }
         for(int i = 0; i < p.numValues(); i ++) {

@@ -121,7 +121,8 @@ public:
         return 0;
     }
 
-    double getProb(const wstring & word) const {
+    double getProb(const wstring & word) const
+    {
         return (getTotalFreq(word) + 1.0) / TOTAL_FREQ;
     }
     virtual bool existPrefix(const wstring & prefix) const
@@ -158,7 +159,7 @@ end_write:
 private:
     Dictionary(const Dictionary &);
 
-    void init() 
+    void init()
     {
         datrie.setMemPool(&mem_pool);
         datrie.getTail().setDataFreer(WordNatureFreer);
@@ -201,20 +202,20 @@ protected:
 
 };
 
-class ShiftContext:public Dictionary
+class NatureProbTable:public Dictionary
 {
 public:
-    ShiftContext():Dictionary()
+    NatureProbTable():Dictionary()
     {
         genUnknownNauture();
     }
 
-    ShiftContext(const string & file):Dictionary(file)
+    NatureProbTable(const string & file):Dictionary(file)
     {
         genUnknownNauture();
     }
 
-    ~ShiftContext()
+    ~NatureProbTable()
     {
         if(_unknownNature) {
             delete _unknownNature;
@@ -224,7 +225,7 @@ public:
     int getNatureTotal(int natureIndex) const
     {
         if(natureIndex < natures.size()) {
-            getTotalFreq(natures[natureIndex]);
+            return getTotalFreq(natures[natureIndex]);
         }
         return 0;
     }
@@ -233,7 +234,7 @@ public:
     {
         if(from < natures.size() || to < natures.size()) {
             const WordNature * fromInfo = getWordInfo(natures[from]);
-            if(fromInfo){
+            if(fromInfo) {
                 double toFreq = fromInfo->getAttrValue(to) + 1.0;
                 double FromTotal = fromInfo->sumOfValues() + 44.0;
                 return toFreq / FromTotal;
@@ -249,7 +250,7 @@ public:
     }
 
 private:
-    ShiftContext(const ShiftContext &);
+    NatureProbTable(const NatureProbTable &);
     void genUnknownNauture()
     {
         _unknownNature = new WordNature();
@@ -262,15 +263,17 @@ private:
     WordNature * _unknownNature;
 };
 
-class UserDict:public Dictionary{
+class UserDict:public Dictionary
+{
 public:
-    UserDict(const string & file):Dictionary(file){
+    UserDict(const string & file):Dictionary(file)
+    {
     }
 
     virtual const WordNature * getWordInfo(const wstring & word) const
     {
         const WordNature * pinfo =  (const WordNature *)datrie.retrieve(word.c_str());
-        if(pinfo == NULL){
+        if(pinfo == NULL) {
             pinfo = (const WordNature *)user_datrie.retrieve(word.c_str());
         }
 
@@ -279,46 +282,47 @@ public:
 
     virtual bool existPrefix(const wstring & prefix) const
     {
-        if(datrie.containsPrefix(prefix)){
+        if(datrie.containsPrefix(prefix)) {
             return true;
         }
 
         return user_datrie.containsPrefix(prefix);
     }
 
-    void loadUserDict(const vector<string> & files){
+    void loadUserDict(const vector<string> & files)
+    {
         int udf_idx = getNatureIndex(NATURE_UNDEF);
-        if(udf_idx < 0){
+        if(udf_idx < 0) {
             addNature(NATURE_UNDEF);
             udf_idx = getNatureIndex(NATURE_UNDEF);
         }
 
         int count = 0;
-        for(int i = 0; i < files.size(); i++){
-            
+        for(int i = 0; i < files.size(); i++) {
+
             cout<<"\rloading user dictionary:"<<files[i].c_str();
             UTF8FileReader reader(files[i]);
             wstring * line;
-            while((line = reader.getLine())){
+            while((line = reader.getLine())) {
                 wstring::size_type wordIndex = line->find_first_of(wordSeperator);
                 wstring word;
                 wstring wordinfo;
-                if(wordIndex == wstring::npos){
+                if(wordIndex == wstring::npos) {
                     word = *line;
-                }else{
+                } else {
                     word = line->substr(0, wordIndex);
-                    if(wordIndex < line->length()){
+                    if(wordIndex < line->length()) {
                         wordinfo = line->substr(wordIndex + 1);
                     }
                 }
-                if(wordinfo.empty()){
-                    if(!getWordInfo(word)){
+                if(wordinfo.empty()) {
+                    if(!getWordInfo(word)) {
                         WordNature *nature = new WordNature();
                         nature->setAttrValue(udf_idx, 1);
                         user_datrie.add(word, nature);
                         count ++;
                     }
-                }else{
+                } else {
                     WordNature * info = new WordNature();
                     vector<wstring> infos;
                     split(wordinfo, natureSeperator, infos);
@@ -326,9 +330,9 @@ public:
                         wstring::size_type freqIndex = infos[i].find_first_of(freqSeperator);
                         wstring nature;
                         int d_freq = 1;
-                        if(freqIndex == wstring::npos){
+                        if(freqIndex == wstring::npos) {
                             nature = infos[i];
-                        }else{
+                        } else {
                             nature = infos[i].substr(0,freqIndex);
                             wstring freq = infos[i].substr(freqIndex + 1);
                             d_freq = wcstol(freq.c_str(), NULL, 10);
@@ -337,7 +341,7 @@ public:
                         int index = getNatureIndex(nature);
                         if(index == -1) {
                             wcerr<<L"The nature not exist in nature list of the file header:"
-                                <<nature<<" line:"<<*line<<endl;
+                                 <<nature<<" line:"<<*line<<endl;
                             addNature(nature);
                             index = getNatureIndex(nature);
                         }
@@ -355,15 +359,15 @@ public:
                         delete info;
                     }
                 }
-                
-                if(count % 1000 == 0){
+
+                if(count % 1000 == 0) {
                     cout<<"\r added -> "<<count;
                 }
             }
-           
+
         }
         cout<<endl;
-    } 
+    }
 private:
     UserDict(const UserDict &);
 protected:

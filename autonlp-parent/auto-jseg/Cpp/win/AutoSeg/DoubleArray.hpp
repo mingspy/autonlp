@@ -261,7 +261,7 @@ public:
             cerr<<"DA_SIG="<<DA_SIGNATURE<<" read sig ="<<sig<<endl;
             goto exist_read;
         }
-        
+
         free(_cell);
         num_cells = serializer.readInt32();
         _cell = (Cell *) malloc(num_cells * sizeof(Cell));

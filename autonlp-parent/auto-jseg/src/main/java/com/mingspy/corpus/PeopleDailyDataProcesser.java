@@ -174,6 +174,7 @@ public class PeopleDailyDataProcesser {
 		}
 		// prune(coreWords, 1);
 		writeWordInfo(coreWords, FolderUtils.combine(output, "/corewords.txt"));
+		System.out.println("TotalFreq of core dic: "+coreWords.getTotalFreq());
 		coreWords.clear();
 
 		for (File f : files) {
@@ -659,6 +660,13 @@ public class PeopleDailyDataProcesser {
 
 	}
 
+	public static void statisticTotalFreq(){
+		LineFileReader reader = new LineFileReader("d:/autoseg/data/words/corewords.txt");
+		reader.nextLine();
+		WordInfoMap map = new WordInfoMap();
+		map.readWordInfo(reader);
+		System.out.println(map.getTotalFreq());
+	}
 	public static void main(String[] args) throws Exception {
 
 		MSTimer timer = new MSTimer();
@@ -671,8 +679,10 @@ public class PeopleDailyDataProcesser {
 		// peopleDaily.prepairTrainTestData("D:/autoseg/data/corpus/trian",
 		// "D:/autoseg/data/estimate/");
 
-		peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
-				"D:/autoseg/data/words/");
+		//peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
+		//		"D:/autoseg/data/words/");
+		
+		statisticTotalFreq();
 
 		System.out.println("done!!used : " + timer);
 

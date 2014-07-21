@@ -19,49 +19,57 @@
 #include <iostream>
 #include <string>
 
-namespace mingspy{
-class IntStrArray{
+namespace mingspy
+{
+class IntStrArray
+{
 private:
     const int * _array;
 public:
-    IntStrArray(const int * suffix){
+    IntStrArray(const int * suffix)
+    {
         _array = suffix;
     }
 
     // change wchar_t to int array in order to save as a unique file
     // between linux and windows
     // notice: the int buf[len] == 0
-    static void wstrToArray(const wchar_t * suffix,  int * buf){
+    static void wstrToArray(const wchar_t * suffix,  int * buf)
+    {
         int len = 0;
-        while(*suffix){
+        while(*suffix) {
             buf[len++] = *suffix++;
         }
 
         buf[len] = 0;
     }
-    static void arrayToWstr(const int * suffix,  wchar_t * buf ){
+    static void arrayToWstr(const int * suffix,  wchar_t * buf )
+    {
         int len = 0;
-        while(*suffix){
+        while(*suffix) {
             buf[len++] = (wchar_t)(*suffix++);
         }
         buf[len] = 0;
     }
-    static int arraySize(const int * suffix){
+    static int arraySize(const int * suffix)
+    {
         int len = 0;
-        while(*suffix++){
+        while(*suffix++) {
             len++;
         }
         return len+1;
     }
 
     // the length of suffix int array
-    // as the last one be zero, so the 
+    // as the last one be zero, so the
     // suffixSize = length(suffix) + 1;
-    inline int size() const {
+    inline int size() const
+    {
         return arraySize(_array);
     }
 
-    const int * getArray() const {
+    const int * getArray() const
+    {
         return _array;
     }
 

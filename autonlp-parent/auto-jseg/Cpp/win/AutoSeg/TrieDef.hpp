@@ -78,7 +78,7 @@ void TrieStrWriter(FILE * file, const void * str)
 }
 
 /*
-* read wstring from file, and return 
+* read wstring from file, and return
 * a wchar_t * allocated in heap, caller
 * need delete the result when not use.
 */

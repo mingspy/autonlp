@@ -37,7 +37,7 @@ private:
     static Dictionary * _coreDict;
     static Dictionary * _inverseCoreDict;
     static Dictionary * _biDict;
-    static ShiftContext * _lexicalDict;
+    static NatureProbTable * _lexicalDict;
     static bool _loaded;
     static ResGuard _resGard;
     static PunctionDictionary _puncDict;
@@ -50,10 +50,10 @@ public:
         string userDictPath = conf.getString(KEY_UDF_DICT_PATH);
         vector<string> files;
         getFiles(userDictPath, files);
-        if(files.size() == 0){
+        if(files.size() == 0) {
             _coreDict = new Dictionary(conf.getString(KEY_CORE_PATH));
 
-        }else{
+        } else {
             UserDict * dict = new UserDict(conf.getString(KEY_CORE_PATH));
             dict->loadUserDict(files);
             _coreDict = dict;
@@ -63,11 +63,11 @@ public:
             _inverseCoreDict = new Dictionary(conf.getString(KEY_INVS_PATH));
         }
 
-        _lexicalDict = new ShiftContext(conf.getString(KEY_LEXICAL_PATH));
-        if(!conf.getString(KEY_BIGRAM_PATH).empty()){
+        _lexicalDict = new NatureProbTable(conf.getString(KEY_LEXICAL_PATH));
+        if(!conf.getString(KEY_BIGRAM_PATH).empty()) {
             _biDict = new Dictionary(conf.getString(KEY_BIGRAM_PATH));
         }
-        
+
         _loaded = true;
         atexit(clean);
     }
@@ -85,7 +85,7 @@ public:
         if(!_loaded) {
             initialize();
         }
-        if(_biDict){
+        if(_biDict) {
             return *_biDict;
         }
 
@@ -100,7 +100,7 @@ public:
         return *_inverseCoreDict;
     }
 
-    static const ShiftContext & LexicalDict()
+    static const NatureProbTable & LexicalDict()
     {
         if(!_loaded) {
             initialize();
@@ -128,24 +128,24 @@ public:
                 delete _inverseCoreDict;
                 _inverseCoreDict = NULL;
             }
-            if(_biDict){
+            if(_biDict) {
                 delete _biDict;
                 _biDict = NULL;
             }
-            if(_lexicalDict){
+            if(_lexicalDict) {
                 delete _lexicalDict;
                 _lexicalDict = NULL;
             }
             _loaded = false;
         }
     }
-   
+
 };
 
 Dictionary * DictFactory::_coreDict = NULL;
 Dictionary * DictFactory::_biDict = NULL;
 Dictionary * DictFactory::_inverseCoreDict = NULL;
-ShiftContext * DictFactory::_lexicalDict = NULL;
+NatureProbTable * DictFactory::_lexicalDict = NULL;
 bool DictFactory::_loaded = false;
 ResGuard DictFactory::_resGard;
 PunctionDictionary DictFactory::_puncDict;

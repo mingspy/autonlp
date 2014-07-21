@@ -14,6 +14,23 @@ import com.mingspy.utils.io.LineFileWriter;
 
 public class WordInfoMap {
 	private Map<String, WordInfo> wordInfos = new HashMap<String, WordInfo>();
+	private int totalFreq = 0;
+	public Map<String, WordInfo> getWordInfos() {
+		return wordInfos;
+	}
+
+	public void setWordInfos(Map<String, WordInfo> wordInfos) {
+		this.wordInfos = wordInfos;
+	}
+
+	public int getTotalFreq() {
+		return totalFreq;
+	}
+
+	public void setTotalFreq(int totalFreq) {
+		this.totalFreq = totalFreq;
+	}
+
 	public void addWordInfo(String word,
 			String nature, int frq) {
 		WordInfo info = wordInfos.get(word);
@@ -29,6 +46,7 @@ public class WordInfoMap {
 			info.clear();
 		}
 		wordInfos.clear();
+		totalFreq = 0;
 	}
 	
 	public void prune( int limit) {
@@ -67,10 +85,12 @@ public class WordInfoMap {
 			for (String inf : infos) {
 				int inIdx = inf.lastIndexOf(":");
 				String nt = inf.substring(0, inIdx);
-				String frq = inf.substring(inIdx + 1);
-				addWordInfo(word, nt, Integer.parseInt(frq));
+				String freqField = inf.substring(inIdx + 1);
+				int freq = Integer.parseInt(freqField);
+				totalFreq += freq;
+				addWordInfo(word, nt, freq);
 				nt = null;
-				frq = null;
+				freqField = null;
 			}
 
 			infos = null;

@@ -25,6 +25,7 @@
 #include "NShortPath.hpp"
 #include "Viterbi.hpp"
 #include "Token.hpp"
+#include "SplitResult.hpp"
 using namespace std;
 
 namespace mingspy
@@ -86,7 +87,7 @@ public:
 
     static void printTokenWithTag(const vector<Token> & result)
     {
-        const ShiftContext & context = DictFactory::LexicalDict();
+        const NatureProbTable & context = DictFactory::LexicalDict();
         for(int i = 0; i< result.size(); i++) {
             wcout<<"("<<result[i]._off<<","<<result[i]._len<<","<<context.getNature(result[i]._attr)<<")";
         }
@@ -159,43 +160,48 @@ public:
     void biGramSplit(const wstring & str, vector<Token> & result)
     {
         Graph wordGraph;
-        // get all words
         genWordGraph(DictFactory::CoreDict(), str, wordGraph, false);
         genBigramWordGraph(DictFactory::CoreDict(), DictFactory::BigramDict(), str, wordGraph, false);
-        // n-short path
         doNShotPath(wordGraph, str, result);
     }
 
     void mixSplit(const wstring & str, vector<Token> & result)
     {
         Graph wordGraph;
-        // get all words
         genWordGraph(DictFactory::CoreDict(), str, wordGraph, true);
         genBigramWordGraph(DictFactory::CoreDict(), DictFactory::BigramDict(), str, wordGraph, true);
-        // n-short path
         doNShotPath(wordGraph, str, result);
     }
 
     void posTagging(const wstring & str, vector<Token> & result)
     {
-        uniGramSplit(str, result);
-        vector<const WordNature *> observs;
-        WordNature * tmp = NULL;
-        const Dictionary & coreDict = DictFactory::CoreDict();
-        const ShiftContext & shiftContext = DictFactory::LexicalDict();
-        for(int i = 0; i < result.size(); i++) {
-            const WordNature * info = coreDict.getWordInfo(str.substr(result[i]._off, result[i]._len));
-            if(info == NULL) {
-                info = shiftContext.getUnknownNature();
-            }
-            observs.push_back(info);
-        }
+        //uniGramSplit(str, result);
+        //doPosTagging(str, DictFactory::CoreDict(), DictFactory::LexicalDict(), result);
+        Graph wordGraph;
+        // get all words
+        genWordGraph(DictFactory::CoreDict(), str, wordGraph, true);
 
-        SparseInstance<int> bestPos;
-        Viterbi::viterbi(observs, shiftContext, bestPos);
-        for(int i = 0; i < result.size(); i++) {
-            result[i]._attr = bestPos.valueAt(i);
+        NShortPath shortPath(wordGraph, MAX_NPATH, str.length());
+        shortPath.calcPaths();
+
+        vector<SplitResult> splitResults;
+        for(int i = 0; i< MAX_NPATH; i++){
+            splitResults.push_back(SplitResult());
+            shortPath.getBestResult(i, splitResults[i].tokens, &splitResults[i].score);
+            splitResults[i].score += 0.4 * doPosTagging(str, DictFactory::CoreDict(), DictFactory::LexicalDict(), splitResults[i].tokens);
         }
+        
+        double minScore = 100000000;
+        int minIndx = 0;
+        for(int i = 0; i < MAX_NPATH; i++){
+            if(splitResults[i].score  < minScore){
+                minScore = splitResults[i].score;
+                minIndx = i;
+            }
+        }
+        result = splitResults[minIndx].tokens;
+        //cout<<minIndx<<endl;
+
     }
 
     void setMaxPaths(int maxs)
@@ -219,8 +225,8 @@ protected:
         const int atome_size = atoms.size();
         int lastj = -1;
         for(int i = 0; i < atome_size; i++) {
-            wchar_t ch = str.at(atoms[i]._off); 
-            if(!puncs.exists(ch)){
+            wchar_t ch = str.at(atoms[i]._off);
+            if(!puncs.exists(ch)) {
                 for(int j = i + 1; j < atome_size; j++) {
                     wstring word = str.substr(atoms[i]._off, atoms[j]._off + atoms[j]._len - atoms[i]._off);
                     if(dict.getWordInfo(word)) {
@@ -255,24 +261,23 @@ protected:
     {
         const PunctionDictionary & puncs = DictFactory::Puntions();
         for(int i = 0; i < atoms.size(); ) {
-           
-            wchar_t ch = str.at(atoms[i]._off);     
+
+            wchar_t ch = str.at(atoms[i]._off);
             int maxj = i;
-            if(!puncs.exists(ch)){
+            if(!puncs.exists(ch)) {
                 for(int j = i+1; j < atoms.size(); j++) {
                     wstring word = str.substr(atoms[i]._off, atoms[j]._off + atoms[j]._len - atoms[i]._off);
-                    if(dict.getWordInfo(word)){
+                    if(dict.getWordInfo(word)) {
                         maxj = j;
-                    }else if(!dict.existPrefix(word)) {
+                    } else if(!dict.existPrefix(word)) {
                         break;
                     }
                 }
             }
 
-
             result.push_back(Token(atoms[i]._off,atoms[maxj]._off + atoms[maxj]._len - atoms[i]._off));
             i = maxj + 1;
- 
+
         }
     }
 
@@ -380,9 +385,9 @@ protected:
                 SparseInstance<double> &insTo = graph[to];
                 for( int k = insTo.numValues() - 1; k >=0 ; k--) {
                     int toEnd = insTo.attrAt(k);
-                    wstring w = word1 + L"@" + str.substr(to, toEnd - to);
                     double twoFreq = 1.0;
-                    twoFreq += bigramdict.getTotalFreq(w);
+                    twoFreq += bigramdict.getNatureFreq(word1, str.substr(to, toEnd - to));
+                    
                     double probTwo = twoFreq / wordFreq;
                     if(addWordFrq) {
                         probTwo = BIGRAM_SMOTH_FACTOR * probTwo + (1 - BIGRAM_SMOTH_FACTOR) * insTo.valueAt(k);
@@ -399,29 +404,40 @@ protected:
         }
     }
 
-    void doNShotPath( Graph & wordGraph, const wstring &str, vector<Token> &result )
+    double doNShotPath( Graph & wordGraph, const wstring &str, vector<Token> &result )
     {
         // n-short path
         NShortPath shortPath(wordGraph, MAX_NPATH, str.length());
         shortPath.calcPaths();
-
         double score = 0;
         shortPath.getBestResult(0, result, &score);
-#if _DEBUG
-        cout<<0<<"\t"<<score<<" ";
-        printTokens(result);
-        for(int i = 1; i < MAX_NPATH; i++ ){
-            result.clear();
-            shortPath.getBestResult(i, result, &score);
+        return score;
+    }
 
-            cout<<i<<"\t"<<score<<" ";
-            printTokens(result);
+    double doPosTagging(const wstring & str, const Dictionary & dict, 
+        const NatureProbTable & context, vector<Token> & result)
+    {
+        vector<const WordNature *> observs;
+        WordNature * tmp = NULL;
+        for(int i = 0; i < result.size(); i++) {
+            const WordNature * info = dict.getWordInfo(
+                                          str.substr(result[i]._off, result[i]._len));
+            if(info == NULL) {
+                info = context.getUnknownNature();
+            }
+            observs.push_back(info);
         }
-#endif
+
+        SparseInstance<int> bestPos;
+        double score = Viterbi::viterbi(observs, context, bestPos);
+        for(int i = 0; i < result.size(); i++) {
+            result[i]._attr = bestPos.valueAt(i);
+        }
+        return score;
     }
 private:
     int MAX_NPATH;
-    
+
     double UNIGRAM_SMOTH_PROB;
     double BIGRAM_SMOTH_FACTOR;
     double TOTAL_FREQ;

@@ -69,7 +69,7 @@ string combinPath(const string & path, const string & path2)
 
 void getFiles( const string & path, vector<string>& files )
 {
-    if(path.empty()){
+    if(path.empty()) {
         return;
     }
 

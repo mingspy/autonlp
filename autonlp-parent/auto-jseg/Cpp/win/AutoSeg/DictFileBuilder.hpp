@@ -58,7 +58,7 @@ public:
                 wcerr<<L"can't find the natures, treat as user define dictionary."<<endl;
                 wcerr<<L"the line is:"<<line<<endl;
                 procALine(line, dict);
-            }else{
+            } else {
                 wstring natures = line->substr(natureindex+natureHead.length());
                 vector<wstring> vec;
                 split(natures,L",",vec);
@@ -73,15 +73,15 @@ public:
                 procALine(line, dict);
                 if(++word_count%100 == 0) {
                     cout<<"\radded words -> "<<word_count;
-                }	
+                }
             }
 
         }
 
         const WordNature * info = dict.getWordInfo(L"ÖÐ¹ú");
-        if(info != NULL){
+        if(info != NULL) {
             cout<<*info<<endl;
-        }else{
+        } else {
             cout<<"not found."<<endl;
         }
         double load_word_end_time = timer.elapsed();
@@ -95,7 +95,7 @@ public:
         return result;
     }
 
-    static void procALine( wstring * line, Dictionary & dict ) 
+    static void procALine( wstring * line, Dictionary & dict )
     {
         wstring::size_type wordIndex = line->find_first_of(wordSeperator);
         wstring word;
@@ -118,7 +118,7 @@ public:
                     int index = dict.getNatureIndex(nature);
                     if(index == -1) {
                         wcerr<<L"The nature not exist in nature list of the file header:"
-                            <<nature<<" line:"<<*line<<endl;
+                             <<nature<<" line:"<<*line<<endl;
                         dict.addNature(nature);
                         index = dict.getNatureIndex(nature);
                     }

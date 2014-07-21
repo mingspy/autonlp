@@ -143,16 +143,17 @@ void testMatrix()
     assert(matrix.val(3,3) == 0);
 }
 
-void testDict(){
+void testDict()
+{
     Dictionary d;
     d.addWordInfo(L"中国",new WordNature());
     d.addWordInfo(L"中国人",new WordNature());
     d.addWordInfo(L"中国人民解放军",new WordNature());
     d.addWordInfo(L"中国",new WordNature());
     const WordNature * info = d.getWordInfo(L"中国");
-    if(info != NULL){
+    if(info != NULL) {
         cout<<*info<<endl;
-    }else{
+    } else {
         cout<<"not found."<<endl;
     }
 }
@@ -164,18 +165,18 @@ void testCoreDictionary()
     Dictionary * dict = new Dictionary(Configuration::instance().getString(KEY_CORE_PATH));
     cout<<"load dictionary"<<timer<<endl;
     const WordNature * info = dict->getWordInfo(L"中国");
-    if(info != NULL){
+    if(info != NULL) {
         cout<<*info<<endl;
-    }else{
+    } else {
         cout<<"not found."<<endl;
     }
 
     dict->addWordInfo(L"中国", new WordNature());
 
     info = dict->getWordInfo(L"中国");
-    if(info != NULL){
+    if(info != NULL) {
         cout<<*info<<endl;
-    }else{
+    } else {
         cout<<"not found."<<endl;
     }
     timer.restart();
@@ -216,9 +217,10 @@ void printHelp(const char * name)
         <<"\t -t   :default core.dic should place in ../data/"<<endl;
 }
 
-void testPosTagging(){
-    vector<string> files;
-    files.push_back("../testwords.txt");
+void testPosTagging()
+{
+    //vector<string> files;
+    //files.push_back("../testwords.txt");
     //DictFileBuilder::buildDict(files, "../test.dic");
     AutoTokenizer autoSeg;
     vector<Token> results;
@@ -227,7 +229,8 @@ void testPosTagging(){
     Tokenizer::printTokens(results);
 }
 
-void testDicBuilder(){
+void testDicBuilder()
+{
     vector<string> files;
     files.push_back("d:/autoseg/data/words/corewords.txt");
     DictFileBuilder::buildDict(files, "d:/autoseg/data/ddd.dic");
@@ -246,9 +249,10 @@ int main(int argc, char ** argv)
         //testDict();
         vector<Token> result;
         Tokenizer tokenizer;
-        tokenizer.uniGramSplit(L"他说的确实在理", result);
+        tokenizer.biGramSplit(L"他说的确实在理", result);
+        testPosTagging();
         getchar();
     }
-    
+
     return 0;
 }

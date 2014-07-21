@@ -39,7 +39,7 @@ using namespace std;
 namespace mingspy
 {
 
-// A help class used to 
+// A help class used to
 // make the suffix be safe-use.
 
 
@@ -138,7 +138,7 @@ public:
     bool setSuffix(int index, const wstring & suffix)
     {
         index -= TAIL_START_BLOCKNO;
-        
+
         if (index < num_tails) {
             /*
              * suffix and tails[index].suffix may overlap; so, dup it before
@@ -213,7 +213,7 @@ public:
     {
         index -= TAIL_START_BLOCKNO;
         if (index < num_tails) {
-            if(tails[index].data && _data_freer){
+            if(tails[index].data && _data_freer) {
                 _data_freer(tails[index].data);
             }
             tails[index].data = data;
@@ -319,7 +319,7 @@ public:
     */
     bool writeToFile(FILE * file)
     {
-        Serializer serializer(file);       
+        Serializer serializer(file);
         if (!serializer.writeInt32(TAIL_SIGNATURE) ||
                 !serializer.writeInt32(first_free)  ||
                 !serializer.writeInt32(num_tails)) {
@@ -332,7 +332,7 @@ public:
 
         for (int i = 1; i < num_tails; i++) {
             if(tails[i].data != NULL) {
-               _data_writer(file,tails[i].data);
+                _data_writer(file,tails[i].data);
             }
 
             if(tails[i].suffix != NULL) {
@@ -371,14 +371,14 @@ public:
         int i = 0;
         for (i = 1; i < num_tails; i++) {
             if(tails[i].data != NULL) {
-               tails[i].data = _data_reader(file);
+                tails[i].data = _data_reader(file);
             }
 
             if(tails[i].suffix != NULL) {
                 suffixlen = serializer.readInt16();
-                if(_pmem){
+                if(_pmem) {
                     tails[i].suffix = (wchar_t * )_pmem->allocAligned((suffixlen+1)*sizeof(wchar_t));
-                }else{
+                } else {
                     tails[i].suffix = new wchar_t[suffixlen+1];
                 }
                 if(!serializer.readWstrData(suffixlen,tails[i].suffix)) {
@@ -403,8 +403,8 @@ private:
     void clear()
     {
         if(tails != NULL) {
-           
-            if(_data_freer){
+
+            if(_data_freer) {
                 for(int i = 1; i < num_tails; i++) {
                     if(tails[i].data != NULL) {
                         _data_freer(tails[i].data);
@@ -418,9 +418,9 @@ private:
                         delete [] tails[i].suffix;
                     }
                 }
-                
+
             }
-            
+
             free(tails);
         }
 
@@ -434,17 +434,17 @@ private:
         if (0 != first_free) {
             block = first_free;
             first_free = tails[block].next_free;
-        } else {            
+        } else {
             tails = (TailBlock *)realloc(tails, (INCREASEMENT_SIZE+num_tails)*sizeof(TailBlock));
             memset(tails+num_tails, 0, sizeof(TailBlock) * INCREASEMENT_SIZE);
             block = num_tails;
             num_tails += INCREASEMENT_SIZE;
             first_free = block + 1;
-            for(int i = first_free; i < num_tails - 1; i++){
+            for(int i = first_free; i < num_tails - 1; i++) {
                 tails[i].next_free = i + 1;
             }
             tails[num_tails - 1].next_free = 0;
-            
+
         }
         return block + TAIL_START_BLOCKNO;
     }
@@ -454,7 +454,7 @@ private:
         block -= TAIL_START_BLOCKNO;
         if (block >= num_tails)
             return;
-        if(tails[block].suffix != NULL&&!_pmem){
+        if(tails[block].suffix != NULL&&!_pmem) {
             delete [] tails[block].suffix;
         }
 
@@ -465,7 +465,7 @@ private:
         tails[block].data = NULL;
         tails[block].suffix = NULL;
 
-        // insert block to free list, as the 
+        // insert block to free list, as the
         // first one.
         tails[block].next_free = first_free;
         first_free = block;

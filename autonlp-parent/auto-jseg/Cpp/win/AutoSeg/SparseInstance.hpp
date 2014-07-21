@@ -315,7 +315,7 @@ exit_write:
         Serializer serializer(file);
         int num = serializer.readInt32();
         SparseInstance<T> * inst = new SparseInstance<T>();
-   
+
         inst->_sumVs = ZERO;
         inst->m_NumValues = num;
         if(num > 0) {

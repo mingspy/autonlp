@@ -18,19 +18,15 @@
 #pragma once
 
 #include <iostream>
+#include "Token.hpp"
+#include <vector>
 
 namespace mingspy
 {
-
-struct Token {
-    int _attr; // type of this token or attribute index.
-    int _off; // start index.
-    int _len; // len
-    //wstring _word; // maybe empty
-    Token(int start = 0, int len = 0, int attr = 0)
-        :_off(start),_len(len),_attr(attr)
-    {
-    }
+class SplitResult
+{
+public:
+    vector<Token> tokens;
+    double score;
 };
-
 }
