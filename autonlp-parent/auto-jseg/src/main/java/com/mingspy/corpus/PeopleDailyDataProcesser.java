@@ -184,6 +184,7 @@ public class PeopleDailyDataProcesser {
 			}
 		}
 		// prune(coreWords, 1);
+		composedInfo.prune(10);
 		writeWordInfo(composedInfo,
 				FolderUtils.combine(output, "/composed.txt"));
 		coreWords.clear();
@@ -544,7 +545,7 @@ public class PeopleDailyDataProcesser {
 					sw = words.get(j);
 					if (sw.getWord().equals("]")) {
 						composedInfo
-								.addWordInfo(sw.getFlag(), sb.toString(), 1);
+								.addWordInfo(sb.toString(),sw.getFlag(),1);
 						break;
 					}
 					if (sb.length() > 0) {
@@ -679,10 +680,10 @@ public class PeopleDailyDataProcesser {
 		// peopleDaily.prepairTrainTestData("D:/autoseg/data/corpus/trian",
 		// "D:/autoseg/data/estimate/");
 
-		//peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
-		//		"D:/autoseg/data/words/");
+		peopleDaily.trianCorpusData("D:/autoseg/data/corpus/trian",
+				"D:/autoseg/data/words/");
 		
-		statisticTotalFreq();
+		//statisticTotalFreq();
 
 		System.out.println("done!!used : " + timer);
 

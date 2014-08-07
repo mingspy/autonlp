@@ -28,6 +28,7 @@
 #include "HashMapDef.hpp"
 #include <string>
 #include "Configuration.hpp"
+#include <wchar.h>
 
 using namespace std;
 
@@ -36,6 +37,7 @@ namespace mingspy
 
 const wstring  NATURE_UNDEF = L"UDF";
 const wstring NATURE_FREQTOTAL=L"FREQTOL";
+const int MAX_WORD_LEN = 2000;
 class Dictionary
 {
 private:
@@ -95,7 +97,7 @@ public:
 
     virtual const WordNature * getWordInfo(const wstring & word) const
     {
-        return (const WordNature *)datrie.retrieve(word.c_str());
+        return (const WordNature *)datrie.retrieve(word);
     }
 
     int getNatureFreq(const wstring & word, const wstring & nature) const
@@ -232,7 +234,7 @@ public:
 
     double getCoProb(int from, int to) const
     {
-        if(from < natures.size() || to < natures.size()) {
+        if(from < natures.size() && to < natures.size()) {
             const WordNature * fromInfo = getWordInfo(natures[from]);
             if(fromInfo) {
                 double toFreq = fromInfo->getAttrValue(to) + 1.0;
@@ -241,7 +243,7 @@ public:
             }
         }
 
-        return 0.000001;
+        return 3.0/TOTAL_FREQ;
     }
 
     const WordNature * getUnknownNature() const
@@ -358,6 +360,7 @@ public:
                         }
                         delete info;
                     }
+                    count++;
                 }
 
                 if(count % 1000 == 0) {

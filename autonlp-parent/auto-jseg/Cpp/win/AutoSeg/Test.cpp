@@ -225,7 +225,7 @@ void testPosTagging()
     AutoTokenizer autoSeg;
     vector<Token> results;
     //autoSeg.biGramSplit(L"典守者具体地说", results);
-    autoSeg.posTagging(L"李岚清将在年会期间出席中国经济专题讨论会和世界经济论坛关于中国经济问题的全会，并在全会上发表演讲。他还将在这里会见世界经济论坛主席施瓦布和出席本次年会的联合国秘书长安南、瑞士联邦主席兼外长科蒂、一些其他国家的国家元首和政府首脑以及国际组织的领导人，并同他们就中国和世界经济发展问题交换看法。", results);
+    autoSeg.posTagging(L"北京大学", results);
     Tokenizer::printTokens(results);
 }
 
@@ -249,7 +249,7 @@ int main(int argc, char ** argv)
         //testDict();
         vector<Token> result;
         Tokenizer tokenizer;
-        tokenizer.biGramSplit(L"他说的确实在理", result);
+        //tokenizer.biGramSplit(L"他说的确实在理", result);
         testPosTagging();
         getchar();
     }

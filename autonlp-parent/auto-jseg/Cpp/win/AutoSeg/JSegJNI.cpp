@@ -27,7 +27,7 @@ static jobject toJavaTokenList(JNIEnv * env, const vector<Token> & result, bool 
     for(int i = 0 ; i < result.size(); i++) {
         jobject t_obj = env->NewObject(token_cls , token_costruct , result[i]._off,result[i]._len);
         if(addNature) {
-            wstring nature = DictFactory::LexicalDict().getNature(result[i]._attr);
+            wstring nature = DictFactory::CoreDict().getNature(result[i]._attr);
             env->SetObjectField(t_obj, token_nature_id,
                                 env->NewString((const jchar *)nature.c_str(), nature.size()));
         }

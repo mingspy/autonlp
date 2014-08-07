@@ -185,15 +185,22 @@ public:
         shortPath.calcPaths();
 
         vector<SplitResult> splitResults;
+        int paths = 0;
         for(int i = 0; i< MAX_NPATH; i++){
             splitResults.push_back(SplitResult());
-            shortPath.getBestResult(i, splitResults[i].tokens, &splitResults[i].score);
-            splitResults[i].score += 0.4 * doPosTagging(str, DictFactory::CoreDict(), DictFactory::LexicalDict(), splitResults[i].tokens);
+            if(shortPath.getBestResult(i, splitResults[i].tokens, &splitResults[i].score)){
+                splitResults[i].score += 0.4 * doPosTagging(str, DictFactory::CoreDict(),   
+                    DictFactory::LexicalDict(), splitResults[i].tokens);
+                paths ++;
+            }else{
+                break;
+            }
+            
         }
         
         double minScore = 100000000;
         int minIndx = 0;
-        for(int i = 0; i < MAX_NPATH; i++){
+        for(int i = 0; i < paths; i++){
             if(splitResults[i].score  < minScore){
                 minScore = splitResults[i].score;
                 minIndx = i;

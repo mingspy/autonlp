@@ -33,7 +33,7 @@ public class WordInfo {
 	public String toString() {
 		String str = word + "\t";
 		for(Entry<String,Integer> en : natures.entrySet()){
-			str +=en.getKey()+":"+en.getValue()+",";
+			str +=en.getKey().toLowerCase()+":"+en.getValue()+",";
 		}
 		//str +=FIELD_TOTAL+":"+sumFreq()+",";
 		return str;

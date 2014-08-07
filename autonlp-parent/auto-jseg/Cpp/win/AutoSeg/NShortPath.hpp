@@ -166,6 +166,8 @@ private:
     {
         if(m_isCalced && ith < m_maxPaths) {
             int to = m_lastIndex;
+            if(ith >= m_paths[to].size()) return false;
+
             path.setScore(m_paths[to].Get(ith)._weight);
             for(int i = 0; i <= m_lastIndex; i++) {
                 RoadSign &node = m_paths[to].Get(ith);

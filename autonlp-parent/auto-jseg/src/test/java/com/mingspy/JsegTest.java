@@ -1,12 +1,13 @@
 package com.mingspy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.mingspy.jseg.AutoTokenizer;
 
 public class JsegTest {
 	AutoTokenizer tokenizer = new AutoTokenizer();
-	
+	@Ignore
 	@Test
 	public void testAutoSeg(){
 	
@@ -31,5 +32,19 @@ public class JsegTest {
 		System.out.println("bigram=>"+tokenizer.biGramSplit(ss));
 		
 		System.out.println(tokenizer.POSTagging(ss));
+	}
+	
+	@Test
+	
+	public void testUserDicts(){
+		doTestSplit("宝马多少钱");
+	}
+	
+	@Test
+	@Ignore
+	public void testAmbiguous(){
+		//doTestSplit("北京大学");
+		//doTestSplit("北京大学生");
+		doTestSplit("发展中国家");
 	}
 }
