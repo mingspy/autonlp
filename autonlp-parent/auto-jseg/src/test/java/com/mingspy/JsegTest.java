@@ -3,10 +3,10 @@ package com.mingspy;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.mingspy.jseg.AutoTokenizer;
+import com.mingspy.jseg.CppTokenizer;
 
 public class JsegTest {
-	AutoTokenizer tokenizer = new AutoTokenizer();
+	CppTokenizer tokenizer = new CppTokenizer();
 	@Ignore
 	@Test
 	public void testAutoSeg(){

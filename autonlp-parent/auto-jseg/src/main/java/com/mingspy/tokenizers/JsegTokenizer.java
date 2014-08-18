@@ -10,7 +10,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
-import com.mingspy.jseg.AutoTokenizer;
+import com.mingspy.jseg.CppTokenizer;
 import com.mingspy.jseg.ITokenizer;
 import com.mingspy.jseg.Token;
 
@@ -22,7 +22,7 @@ public class JsegTokenizer extends Tokenizer {
 	private List<Token> _splitResult;
 	//分词结果 
     private Iterator<Token> tokens; 
-    ITokenizer tokenizer = new AutoTokenizer();
+    ITokenizer tokenizer = new CppTokenizer();
 	public JsegTokenizer(Reader input) {
 		super(input);
 		termAtt = addAttribute(CharTermAttribute.class);
