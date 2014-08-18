@@ -7,7 +7,7 @@ import com.mingspy.walee.core.Question;
  * @author xiuleili
  *
  */
-public interface IQAnalysis {
+public interface IQAnalyzer {
 	/**
 	 * 对问题进行分析，抽取出有用的信息，并存储在问题的properties中。
 	 * @param question 待分析的问题。

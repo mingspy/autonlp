@@ -1,43 +1,65 @@
 package com.mingspy.walee;
 
-import com.mingspy.walee.analysis.IQAnalysis;
+import org.apache.log4j.Logger;
+
+import com.mingspy.utils.MSTimer;
+import com.mingspy.walee.analysis.IQAnalyzer;
 import com.mingspy.walee.answer.IAnswerGenerator;
-import com.mingspy.walee.answer.IAnswerSelector;
+import com.mingspy.walee.answer.IAnswerSynthesizer;
 import com.mingspy.walee.core.Question;
 
 public class Walee implements IChatting {
 
-	private IQAnalysis question_analysor;
-	private IAnswerGenerator answer_generator;
-	private IAnswerSelector answer_selector;
+	private static final Logger LOG = Logger.getLogger(Walee.class);
+
+	private IQAnalyzer questionAnalyzer;
+	private IAnswerGenerator answerGenerator;
+	private IAnswerSynthesizer answerSynthesizer;
+
 	@Override
 	public Question answer(String questionStr) {
 		Question question = new Question();
 		question.setContent(questionStr);
-		question_analysor.analysis(question);
-		answer_generator.generate(question);
-		answer_selector.select(question);
+
+		LOG.debug("----问题分析开始：[" + questionStr + "]");
+		MSTimer timer = new MSTimer();
+		questionAnalyzer.analysis(question);
+		LOG.debug("----问题分析结束：" + timer);
+
+		LOG.debug("====答案生成开始：[" + questionStr + "]");
+		timer.restart();
+		answerGenerator.generate(question);
+		LOG.debug("====答案生成结束：" + timer);
+		
+		LOG.debug("====答案合成开始：[" + questionStr + "]");
+		timer.restart();
+		answerSynthesizer.synthesis(question);
+		LOG.debug("====答案合成结束：" + timer);
 		return question;
 	}
-	
-	
-	public IQAnalysis getQuestion_analysor() {
-		return question_analysor;
+
+	public IQAnalyzer getQuestionAnalyzer() {
+		return questionAnalyzer;
 	}
-	public void setQuestion_analysor(IQAnalysis question_analysor) {
-		this.question_analysor = question_analysor;
+
+	public void setQuestionAnalyzer(IQAnalyzer questionAnalyzer) {
+		this.questionAnalyzer = questionAnalyzer;
 	}
-	public IAnswerGenerator getAnswer_generator() {
-		return answer_generator;
+
+	public IAnswerGenerator getAnswerGenerator() {
+		return answerGenerator;
 	}
-	public void setAnswer_generator(IAnswerGenerator answer_generator) {
-		this.answer_generator = answer_generator;
+
+	public void setAnswerGenerator(IAnswerGenerator answerGenerator) {
+		this.answerGenerator = answerGenerator;
 	}
-	public IAnswerSelector getAnswer_selector() {
-		return answer_selector;
+
+	public IAnswerSynthesizer getAnswerSynthesizer() {
+		return answerSynthesizer;
 	}
-	public void setAnswer_selector(IAnswerSelector answer_selector) {
-		this.answer_selector = answer_selector;
+
+	public void setAnswerSynthesizer(IAnswerSynthesizer answerSynthesizer) {
+		this.answerSynthesizer = answerSynthesizer;
 	}
 
 }

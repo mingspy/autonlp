@@ -54,7 +54,7 @@ public class Question {
 	 * @param key
 	 * @param val
 	 */
-	public void putProperty(String key, Object val){
+	public void setProperty(String key, Object val){
 		properties.put(key, val);
 	}
 	
