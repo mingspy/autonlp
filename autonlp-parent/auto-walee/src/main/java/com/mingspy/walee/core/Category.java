@@ -19,25 +19,46 @@ public class Category {
 	private String name;
 	private double weight = 1.0;
 
+	public Category(){
+	}
+	
+	public Category(String name, double weight){
+		checkFormat(name);
+		this.name = name;
+		this.weight = weight;
+	}
+
+	private static void checkFormat(String name) {
+		if (!name.startsWith(NAME_SEPERATOR) || name.endsWith(NAME_SEPERATOR)) {
+			throw new RuntimeException(name + "->格式错误!");
+		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(name);
+		builder.append(WEIGHT_SEPERATOR);
+		builder.append(weight);
+		return builder.toString();
+	}
+
 	public static List<Category> parse(String catStr) {
 		List<Category> results = new ArrayList<Category>();
 		String[] cats = catStr.split(CATEGORY_SEPERATOR);
 		for (String cat : cats) {
 			if (!cat.isEmpty()) {
+				Category  ct = new Category();
 				int idx = cat.lastIndexOf(WEIGHT_SEPERATOR);
-				double weight = 1.0;
 				if (idx != -1) {
 					String wStr = cat.substring(idx + 1);
-					weight = Double.parseDouble(wStr);
+					ct.weight = Double.parseDouble(wStr);
 					cat = cat.substring(0, idx);
 				}
-				if (!cat.startsWith(NAME_SEPERATOR) || cat.endsWith(NAME_SEPERATOR)) {
-					throw new RuntimeException(cat + "->格式错误!");
-				}
 				
-				Category  ct = new Category();
+				checkFormat(cat);
+				
 				ct.name = cat;
-				ct.weight = weight;
 				results.add(ct);
 			}
 		}
@@ -55,8 +76,29 @@ public class Category {
 		return builder.toString();
 	}
 
-	public boolean equals(Category another) {
-		return name.equalsIgnoreCase(another.name);
+	public static int distance(Category c1, Category c2){
+		String [] names1 = c1.name.split(NAME_SEPERATOR);
+		String [] names2 = c2.name.split(NAME_SEPERATOR);
+		int i = 0, j = 0;
+		for(; i < names1.length &&j < names2.length;i++, j++){
+			if(!names1[i].equalsIgnoreCase(names2[j])){
+				break;
+			}
+		}
+		return names1.length + names2.length - i - j;
+	}
+	
+	public int distance(Category another){
+		return distance(this, another);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Category){
+			Category another = (Category)obj;
+			return name.equalsIgnoreCase(another.name);
+		}
+		return false;
 	}
 
 	public String getName() {

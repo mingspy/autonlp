@@ -1,4 +1,4 @@
-package com.mingspy;
+package com.mingspy.walee;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

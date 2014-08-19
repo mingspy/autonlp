@@ -1,32 +1,28 @@
-package com.mingspy.walee.analysis.patternMatch.matcher;
+package com.mingspy.walee.analysis.pattern.matcher;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.mingspy.utils.ScoreList;
-import com.mingspy.walee.analysis.patternMatch.types.Pattern;
-import com.mingspy.walee.analysis.patternMatch.types.QuestionPattern;
+import com.mingspy.walee.analysis.pattern.types.Item;
+import com.mingspy.walee.analysis.pattern.types.Pattern;
+import com.mingspy.walee.analysis.pattern.types.QuestionPattern;
 
-public class PatternTrie implements Serializable {
+public class PatternTrie implements IPatternMatcher{
 	public static final int BASE_SCORE = 100;
 	
-	private static final long serialVersionUID = 2239010188663099238L;
 	private TrieNode root = null;
-	public class TrieNode implements Serializable
+	public class TrieNode extends Item
     {
-		private static final long serialVersionUID = -4277280900898555052L;
 		public long id;
-        public String key;
         public List<TrieNode> childs;
         public TrieNode parent;
-        public double score;
         public double patternScore;
         public TrieNode(long id, String key, List<TrieNode> childs, TrieNode parent){
+        	super(key);
         	this.id = id;
-        	this.key = key;
         	this.childs = childs;
         	this.parent = parent;
         }
@@ -54,10 +50,10 @@ public class PatternTrie implements Serializable {
         }
 
         TrieNode next = null;
-        String key = p.getItem(i).getKey();
+        Item pattern_item = p.getItem(i);
         for (TrieNode child : item.childs)
         {
-            if (child.key.equalsIgnoreCase(key))
+            if (child.equals(pattern_item))
             {
                 next = child;
                 break;
@@ -66,8 +62,8 @@ public class PatternTrie implements Serializable {
 
         if (next == null)
         {
-            next  = new TrieNode(0, key, null, item) ;
-            next.score = p.getItem(i).getScore();
+            next  = new TrieNode(0, pattern_item.getKey(), null, item) ;
+            next.setScore(p.getItem(i).getScore());
             item.childs.add(next);
         }
 
@@ -111,21 +107,14 @@ public class PatternTrie implements Serializable {
         if (item.childs == null) return true;
         if(i == p.itemsSize()) return false;
 
-        boolean starFound = false;
-        boolean keyFound = false;
         boolean keyMatched = false;
         boolean starMatched = false;
-        String patternKey = p.getItem(i).getKey();
         for (TrieNode child : item.childs)
         {
-            String childKey = child.key;
-            if (!childKey.equals("*"))
+            if (!child.isstar())
             {
                 // found the key.
-                if (!keyFound && isEqual(childKey, patternKey)) {
-                	// 特殊处理[CAR] 和 [CAR_*
-                	if(!childKey.startsWith("[CAR"))
-                		keyFound = true;
+                if (p.getItem(i).equals(child)) {
                     if (child.id != 0) // met a pattern.
                     {
                     	double score = calcScore(child);
@@ -133,7 +122,6 @@ public class PatternTrie implements Serializable {
                     	keyMatched = true;
                     }
                     
-
                     // check the longer patterns.
                     // children are longer than parent.
                     if( match(child, p, i + 1, result)){
@@ -149,35 +137,19 @@ public class PatternTrie implements Serializable {
                 	result.put(child.id, score);
                 	starMatched = true;
                 }
-                starFound = true;
                 if(matchStar(child, p, i, result)){
                 	starMatched = true;
                 }
-            }
-
-            if (keyFound && starFound)
-            {
-                break;
             }
         }
 
         return starMatched || keyMatched;
     }
     
-    private boolean isEqual(String itemkey, String patternkey){
-    	if(itemkey.equalsIgnoreCase(patternkey)){
-    		return true;
-    	}else if(itemkey.equals("[CAR]")&&patternkey.startsWith("[CAR_")){
-    		return true;
-    	}
-    	
-    	return false;
-    }
-    
     private double calcScore(TrieNode child) {
 		double score = child.patternScore * BASE_SCORE;
 		while(child.parent != null){
-			score += child.score;
+			score += child.getScore();
 			child = child.parent;
 		}
 		return score;
@@ -202,10 +174,7 @@ public class PatternTrie implements Serializable {
     }
 	
 	public static void main(String[] args) {
-		String test1 = new String("[CAR]");
-		String test2 = new String("[CAR_MODEL]");
-		System.out.println(test1.equals("[CAR]"));
-		System.out.println(test2.startsWith("[CAR_"));
+
 		QuestionPattern p1 = new QuestionPattern(1, 10, "搜狐;汽车;自然语言处理;小组;", null);
 		QuestionPattern p2 = new QuestionPattern(2, 10, "搜狐;汽车;问答;小组;", null);
 		QuestionPattern p3 = new QuestionPattern(3, 10, "搜狐;*;小组;", null);

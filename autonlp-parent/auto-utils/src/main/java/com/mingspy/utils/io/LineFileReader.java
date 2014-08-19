@@ -82,7 +82,7 @@ public class LineFileReader {
 		String line = null;
 		if (reader != null) {
 			try {
-				boolean isblocking = false;
+				//boolean isblocking = false;
 				while (true) {
 					line = reader.readLine();
 					if (line == null) {
@@ -93,26 +93,16 @@ public class LineFileReader {
 					if (line.isEmpty()) {
 						continue;
 					}
-
-					if(isblocking){
-						//if(line.endsWith("*/")){
-						//	isblocking = false;
-						//}
-						//continue;
-					}
 					
 					boolean isAnnotation = false;
 					for (String ch : annotations) {
 						if (line.startsWith(ch)) {
 							isAnnotation = true;
-							//if(ch.equals("/*")){
-							//	isblocking = true;
-							//}
 							break;
 						}
 					}
 
-					if (!isAnnotation && !isblocking) {
+					if (!isAnnotation) {
 						break;
 					}
 				}

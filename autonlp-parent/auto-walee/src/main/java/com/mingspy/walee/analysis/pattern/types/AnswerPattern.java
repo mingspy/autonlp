@@ -1,4 +1,4 @@
-package com.mingspy.walee.analysis.patternMatch.types;
+package com.mingspy.walee.analysis.pattern.types;
 
 
 

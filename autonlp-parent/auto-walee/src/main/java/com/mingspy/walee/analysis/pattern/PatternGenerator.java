@@ -1,4 +1,4 @@
-package com.mingspy.walee.analysis.patternMatch;
+package com.mingspy.walee.analysis.pattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,10 @@ import java.util.List;
 import com.mingspy.utils.Range;
 import com.mingspy.utils.RangeKeeper;
 import com.mingspy.utils.SuffixTree;
-import com.mingspy.walee.analysis.patternMatch.types.Pattern;
+import com.mingspy.walee.analysis.pattern.types.Item;
+import com.mingspy.walee.analysis.pattern.types.Pattern;
 
-public class PatternExtracter {
+public class PatternGenerator {
 	public enum ExtractMode {
 		Original, // 用原始字符串组成pattern
 		NamedEntry, // 用命名实体识别字符串
@@ -109,7 +110,7 @@ public class PatternExtracter {
 					return null;
 				}else if (r.getStart() != last.getEnd() + 1) {
 					sb.append(Pattern.SEPARATOR);
-					sb.append(Pattern.Item.STAR);
+					sb.append(Item.STAR);
 					sb.append(Pattern.SEPARATOR);
 				}
 			}
@@ -181,7 +182,7 @@ public class PatternExtracter {
 				}else
 				if (current.getStart() != last.getEnd() + 1) {
 					sb.append(Pattern.SEPARATOR);
-					sb.append(Pattern.Item.STAR);
+					sb.append(Item.STAR);
 					sb.append(Pattern.SEPARATOR);
 				}
 			}
@@ -204,7 +205,7 @@ public class PatternExtracter {
 	}
 
 	public static void main(String args[]) {
-		List<String> lst = new PatternExtracter().extractBothPatterns("二手车异地过户怎样办理？", "买二手车怎么过户");
+		List<String> lst = new PatternGenerator().extractBothPatterns("二手车异地过户怎样办理？", "买二手车怎么过户");
 		System.out.println(lst.toString());
 	}
 }

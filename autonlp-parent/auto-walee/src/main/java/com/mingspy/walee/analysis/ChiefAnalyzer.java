@@ -19,7 +19,11 @@ public class ChiefAnalyzer implements Collection<IQAnalyzer>, IQAnalyzer {
 
 	
 	public ChiefAnalyzer(){
-		// TODO add some analyzer
+		// add analyzers, the order is very important, as 
+		// some analyzer is depended to another has handled.
+		workers.add(QAnalyzerFactory.getTokenAnalyzer());
+		workers.add(QAnalyzerFactory.getNameEntityAnalyzer());
+		workers.add(QAnalyzerFactory.getCategoryAnalyzer());
 	}
 	
 	@Override

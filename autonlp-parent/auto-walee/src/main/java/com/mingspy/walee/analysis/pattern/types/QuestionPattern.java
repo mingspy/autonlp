@@ -1,7 +1,9 @@
-package com.mingspy.walee.analysis.patternMatch.types;
+package com.mingspy.walee.analysis.pattern.types;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import com.mingspy.jseg.Token;
 
 
 public class QuestionPattern extends Pattern{
@@ -42,15 +44,15 @@ public class QuestionPattern extends Pattern{
 			return null;
 		}
 		
-		List<Pattern.Item> items = new LinkedList<QuestionPattern.Item>();
+		List<Item> items = new LinkedList<Item>();
 		QuestionPattern pattern = new QuestionPattern(-1, -1, items, null);
 		for(Token t:tokens){
-			String cat = t.getCategory(); 
+			String cat = t.nature;
 			
 			if( cat != null){
 				pattern.addItem(cat);
 			}else{
-				pattern.addItem(t.getWord());
+				pattern.addItem(t.nature);
 			}
 		}
 
@@ -59,7 +61,7 @@ public class QuestionPattern extends Pattern{
 
 	@Override
 	public QuestionPattern clone() {
-		return new QuestionPattern(this.patternId, this.score, items, topic);
+		return new QuestionPattern(this.patternId, this.score, items, category);
 	}
 	
 	

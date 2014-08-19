@@ -9,9 +9,14 @@ import com.mingspy.jseg.ITokenizer;
 import com.mingspy.jseg.Token;
 import com.mingspy.walee.core.Question;
 
-public class Tokenizer implements IQAnalyzer {
+/**
+ * 分词器：完成分词和词性标注功能。
+ * @author xiuleili
+ *
+ */
+public class TokenAnalyzer implements IQAnalyzer {
 
-	private static final Logger LOG = Logger.getLogger(Tokenizer.class);
+	private static final Logger LOG = Logger.getLogger(TokenAnalyzer.class);
 	private ITokenizer _tokenizer = new CppTokenizer();
 	@Override
 	public boolean analysis(Question question) {
