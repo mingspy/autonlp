@@ -1,5 +1,6 @@
 package com.mingspy.walee.answer;
 
+import com.mingspy.walee.core.Answer;
 import com.mingspy.walee.core.Evidence;
 import com.mingspy.walee.core.Question;
 

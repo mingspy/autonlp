@@ -166,7 +166,7 @@ public class SuffixTree {
 		String str = sbs.get(belongTo - 1).toString();
 		
 		for(Node node : commonNodes){
-			if(node.belongTo == belongTo && node.belongs > 1&& node.parent != node){
+			if(node.belongTo == belongTo && node.belongs > 1 && node.parent != node){
 				findAllRange(keeper, str, node);
 			}
 		}
@@ -448,6 +448,9 @@ public class SuffixTree {
 		SuffixTree st = new SuffixTree("我到广州买二手车怎样办理汽车过户手续");
 		st.print();
 		st.addString("成都二手车代办过户能把二手车的车籍是怎么办理的？");
+		st.addString("#################################我到广州买二手车怎样办理汽车过户手续？");
 		st.print();
+		RangeKeeper k = st.getLastCommonRanges();
+		System.out.println(k);
 	}
 }

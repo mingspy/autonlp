@@ -24,7 +24,7 @@ public class Range {
 	}
 
 	public int length(){
-		return  end - start;
+		return  end - start + 1;
 	}
 	
 }

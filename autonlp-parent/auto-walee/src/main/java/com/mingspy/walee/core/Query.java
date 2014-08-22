@@ -1,7 +1,15 @@
 package com.mingspy.walee.core;
 
 public class Query {
-	private String queries;
+	public Query(){
+		
+	}
+	
+	public Query(String query){
+		this.queries = query;
+	}
+	
+	protected String queries;
 
 	public String getQueries() {
 		return queries;

@@ -18,6 +18,7 @@ import com.mingspy.walee.analysis.pattern.types.Pattern;
 import com.mingspy.walee.core.Category;
 import com.mingspy.walee.core.Question;
 import com.mingspy.walee.core.Slot;
+import com.mingspy.walee.core.Tools;
 
 /**
  * 问题分类器
@@ -80,27 +81,21 @@ public class CategoryAnalyzer implements IQAnalyzer {
 					cats.add(cat);
 				}
 
-				cat.setWeight(cat.getWeight() + en.getValue()
-						* pcat.getWeight());
+				cat.addScore( en.getValue()
+						* pcat.getScore());
 			}
 		}
 
 		// 4. 分类排序
-		Collections.sort(cats, new Comparator<Category>() {
-			@Override
-			public int compare(Category o1, Category o2) {
-				double delta = o1.getWeight() - o2.getWeight();
-				return delta < 0 ? -1 : (delta > 0.000005 ? 1 : 0);
-			}
-		});
+		Collections.sort(cats, Tools.DSC_SCORE_COMPARAROTR);
 
 		// 5. 归一化分类
 		double sum = 0.000005;
 		for (Category c : cats) {
-			sum += c.getWeight();
+			sum += c.getScore();
 		}
 		for (Category c : cats) {
-			c.setWeight(c.getWeight() / sum);
+			c.setScore(c.getScore() / sum);
 		}
 
 		// 设置问题分类

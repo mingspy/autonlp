@@ -12,9 +12,10 @@ import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import com.mingspy.utils.Stemming;
 import com.mingspy.utils.StopWords;
 import com.mingspy.utils.io.LineFileReader;
-import com.mingspy.walee.SpliterUtils;
+import com.mingspy.walee.core.Tools;
 
 public class SpamProbTrainer {
 
@@ -163,9 +164,9 @@ public class SpamProbTrainer {
 			// line = line.replace(" ", "");
 			// System.out.println(line);
 			// 只统计包含中文的词。
-			line = SpliterUtils.stem(line);
+			line = Stemming.stem(line);
 			//System.out.println("line"+count+"->"+line);
-			List<String> words = SpliterUtils.split(line);
+			List<String> words = Tools.split(line);
 			if(words == null) continue;
 			Set<String> docword = new HashSet<String>();
 			for (String word : words) {
@@ -225,8 +226,8 @@ public class SpamProbTrainer {
 	private void statisticDoc(String header, StringBuilder builder) {
 		if (header == null || builder.length() == 0)
 			return;
-		String line = SpliterUtils.stem(builder.toString());
-		List<String> words = SpliterUtils.split(line);
+		String line = Stemming.stem(builder.toString());
+		List<String> words = Tools.split(line);
 		if (words != null) {
 			boolean isBad = header.contains("@class:spam");
 			if (isBad) {

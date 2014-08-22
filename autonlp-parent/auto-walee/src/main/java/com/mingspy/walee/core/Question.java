@@ -6,10 +6,18 @@ import java.util.Map;
 
 /**
  * 用户的问题。
+ * 
  * @author xiuleili
- *
+ * 
  */
 public class Question {
+	public Question() {
+	}
+
+	public Question(String question) {
+		content = question;
+	}
+
 	/**
 	 * 分词结果
 	 */
@@ -26,7 +34,7 @@ public class Question {
 	 * 关系列表：
 	 */
 	public static final String RELATIONS = "relations";
-	
+
 	/**
 	 * 问题的内容
 	 */
@@ -38,36 +46,41 @@ public class Question {
 	/**
 	 * 问题分析的一些属性。为了支持向后扩展，故写成map方式。
 	 */
-	private Map<String,Object> properties = new HashMap<String, Object>();
-	
+	private Map<String, Object> properties = new HashMap<String, Object>();
+
 	/**
 	 * 获取问题的某属性。
+	 * 
 	 * @param key
 	 * @return
 	 */
-	public Object getProperty(String key){
+	public Object getProperty(String key) {
 		return properties.get(key);
 	}
-	
+
 	/**
 	 * 设置问题的属性。
+	 * 
 	 * @param key
 	 * @param val
 	 */
-	public void setProperty(String key, Object val){
+	public void setProperty(String key, Object val) {
 		properties.put(key, val);
 	}
-	
+
 	// -----------------------gets/sets-----------------------------
 	public String getContent() {
 		return content;
 	}
+
 	public void setContent(String content) {
 		this.content = content;
 	}
+
 	public List<Answer> getAnswers() {
 		return answers;
 	}
+
 	public void setAnswers(List<Answer> answers) {
 		this.answers = answers;
 	}

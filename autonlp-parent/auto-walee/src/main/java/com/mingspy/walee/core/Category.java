@@ -12,20 +12,20 @@ import java.util.List;
  * @author xiuleili
  * 
  */
-public class Category {
+public class Category extends ScoreObj{
 	private static final String WEIGHT_SEPERATOR = ":";
 	private static final String NAME_SEPERATOR = "/";
 	private static final String CATEGORY_SEPERATOR = ",";
 	private String name;
-	private double weight = 1.0;
 
 	public Category(){
+		score = 1.0;
 	}
 	
 	public Category(String name, double weight){
 		checkFormat(name);
 		this.name = name;
-		this.weight = weight;
+		this.score = weight;
 	}
 
 	private static void checkFormat(String name) {
@@ -39,7 +39,7 @@ public class Category {
 		StringBuilder builder = new StringBuilder();
 		builder.append(name);
 		builder.append(WEIGHT_SEPERATOR);
-		builder.append(weight);
+		builder.append(score);
 		return builder.toString();
 	}
 
@@ -52,7 +52,7 @@ public class Category {
 				int idx = cat.lastIndexOf(WEIGHT_SEPERATOR);
 				if (idx != -1) {
 					String wStr = cat.substring(idx + 1);
-					ct.weight = Double.parseDouble(wStr);
+					ct.score = Double.parseDouble(wStr);
 					cat = cat.substring(0, idx);
 				}
 				
@@ -70,7 +70,7 @@ public class Category {
 		for(Category cat : categories){
 			builder.append(cat.name);
 			builder.append(WEIGHT_SEPERATOR);
-			builder.append(cat.weight);
+			builder.append(cat.score);
 			builder.append(CATEGORY_SEPERATOR);
 		}
 		return builder.toString();
@@ -109,12 +109,5 @@ public class Category {
 		this.name = name;
 	}
 
-	public double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
 
 }

@@ -49,7 +49,7 @@ public class HttpDownloader {
 	private GetMethod excuteGet(String urlStr, String urlCharset)
 			throws IOException {
 		GetMethod get = new GetMethod();
-		URI uri = new URI(urlStr, true, urlCharset);
+		URI uri = new URI(urlStr, false, urlCharset);
 		get.setURI(uri);
 
 		get.addRequestHeader("Connection", "close");

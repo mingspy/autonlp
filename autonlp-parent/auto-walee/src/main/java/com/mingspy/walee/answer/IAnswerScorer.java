@@ -1,6 +1,9 @@
 package com.mingspy.walee.answer;
 
+import java.util.List;
+
 import com.mingspy.walee.core.Answer;
+import com.mingspy.walee.core.Evidence;
 import com.mingspy.walee.core.Question;
 
 public interface IAnswerScorer {
@@ -10,5 +13,5 @@ public interface IAnswerScorer {
 	 * @param answer
 	 * @return
 	 */
-	double score(Question question, Answer answer);
+	double score(Question question, Answer answer, List<Evidence> evidences);
 }

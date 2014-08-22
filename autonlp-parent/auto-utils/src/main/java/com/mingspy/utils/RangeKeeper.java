@@ -138,6 +138,21 @@ public class RangeKeeper {
 		return ranges.size();
 	}
 	
+	public Range getMaxRange(){
+		Range range = null;
+		int max = 0;
+		for(Range r : ranges){
+			int len = r.length();
+			if(len > max){
+				max = len;
+				range = r;
+			}
+		}
+		
+		return range;
+		
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("range:");

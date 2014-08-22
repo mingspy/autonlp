@@ -123,7 +123,7 @@ jobject Java_POSTagging
 {
     const char * p = env->GetStringUTFChars(jstr, 0);
     vector<Token> result;
-    cout<<"input=>"<<p<<endl;
+    //cout<<"input=>"<<p<<endl;
     GetTokenizer().posTagging(Utf8ToUnicode(p), result);
     env->ReleaseStringUTFChars(jstr, p);
 

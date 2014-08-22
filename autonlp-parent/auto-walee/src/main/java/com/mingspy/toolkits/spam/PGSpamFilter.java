@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.mingspy.utils.Stemming;
 import com.mingspy.utils.StopWords;
-import com.mingspy.walee.SpliterUtils;
+import com.mingspy.walee.core.Tools;
 
 
 /**
@@ -38,7 +39,7 @@ public class PGSpamFilter implements ISpamFilter{
 	 */
 	public double filter(String doc) {
 		
-		List<String> tokens = SpliterUtils.split(SpliterUtils.stem(doc));
+		List<String> tokens = Tools.split(Stemming.stem(doc));
 		if (tokens == null) {
 			return 0;
 		}

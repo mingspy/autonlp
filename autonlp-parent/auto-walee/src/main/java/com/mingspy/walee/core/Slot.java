@@ -1,5 +1,10 @@
 package com.mingspy.walee.core;
 
+/**
+ * 命名实体的类型
+ * @author xiuleili
+ *
+ */
 public class Slot {
 	public static final String SLOT_START = "<";
 	public static final String SLOT_END = ">";

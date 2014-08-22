@@ -1,34 +1,66 @@
 package com.mingspy.walee.core;
 
+import java.util.List;
+
+import com.mingspy.jseg.Token;
+
 
 /**
  * 答案的证据。用于支持某答案的文本，问题等。
  * @author xiuleili
  *
  */
-public class Evidence {
+public class Evidence extends ScoreObj{
 	/**
 	 * 标题
 	 */
-	private String title;
+	protected String title;
 	/**
 	 * 内容
 	 */
-	private String content;
+	protected String content;
 	/**
 	 * 来源
 	 */
-	private String source;
-	/**
-	 * 得分
-	 */
-	private double score;
-	/**
-	 * 备注：主要用于记录得分记录，用于debug.
-	 */
-	private String notes;
+	protected String src;
 	
+	protected List<Token> titleTokens = null;
+	protected List<Token> contentTokens = null;
+
+	public List<Token> getTitleTokens() {
+		return titleTokens;
+	}
+
+	public void setTitleTokens(List<Token> titleTokens) {
+		this.titleTokens = titleTokens;
+	}
+
+	public List<Token> getContentTokens() {
+		return contentTokens;
+	}
+
+	public void setContentTokens(List<Token> contentTokens) {
+		this.contentTokens = contentTokens;
+	}
+
+	public void addScore(double s){
+		score += s;
+	}
 	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{title:\"");
+		builder.append(title);
+		builder.append("\",content:\"");
+		builder.append(content);
+		builder.append("\",score:");
+		builder.append(score);
+		builder.append(",src:\"");
+		builder.append(src);
+		builder.append("\"}");
+		return builder.toString();
+	}
 	public String getContent() {
 		return content;
 	}
@@ -36,23 +68,12 @@ public class Evidence {
 		this.content = content;
 	}
 	public String getSource() {
-		return source;
+		return src;
 	}
 	public void setSource(String source) {
-		this.source = source;
+		this.src = source;
 	}
-	public double getScore() {
-		return score;
-	}
-	public void setScore(double score) {
-		this.score = score;
-	}
-	public String getNotes() {
-		return notes;
-	}
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
+
 	public String getTitle() {
 		return title;
 	}

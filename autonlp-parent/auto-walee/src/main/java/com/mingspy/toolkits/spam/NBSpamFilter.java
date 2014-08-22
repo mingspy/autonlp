@@ -3,8 +3,9 @@ package com.mingspy.toolkits.spam;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mingspy.utils.Stemming;
 import com.mingspy.utils.StopWords;
-import com.mingspy.walee.SpliterUtils;
+import com.mingspy.walee.core.Tools;
 
 public class NBSpamFilter implements ISpamFilter{
 
@@ -33,7 +34,7 @@ public class NBSpamFilter implements ISpamFilter{
 	 */
 	public double filter(String doc) {
 		
-		List<String> tokens = SpliterUtils.split(SpliterUtils.stem(doc));
+		List<String> tokens = Tools.split(Stemming.stem(doc));
 		if (tokens == null) {
 			return 0;
 		}
