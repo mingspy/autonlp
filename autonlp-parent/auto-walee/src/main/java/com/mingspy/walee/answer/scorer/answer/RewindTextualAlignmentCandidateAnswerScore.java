@@ -38,7 +38,7 @@
 ///**
 // * 对候选答案进行评分 【回带文本对齐评分组件】
 // *
-// * @author 杨尚川
+// * @author xiuleili
 // */
 //public class RewindTextualAlignmentCandidateAnswerScore implements CandidateAnswerScore {
 //

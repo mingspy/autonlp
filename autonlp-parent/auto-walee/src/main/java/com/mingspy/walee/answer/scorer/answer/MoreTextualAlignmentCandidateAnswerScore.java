@@ -34,7 +34,7 @@
 // * 忽略问题中长度为1的词
 // * 匹配更多的内容
 // *
-// * @author 杨尚川
+// * @author xiuleili
 // */
 //public class MoreTextualAlignmentCandidateAnswerScore extends TextualAlignmentAnswerScorer {
 //

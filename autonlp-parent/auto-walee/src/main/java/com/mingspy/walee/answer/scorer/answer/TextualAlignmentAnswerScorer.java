@@ -37,7 +37,7 @@
 ///**
 // * 对候选答案进行评分 【文本对齐评分组件】
 // *
-// * @author 杨尚川
+// * @author xiuleili
 // */
 //public class TextualAlignmentAnswerScorer implements IAnswerScorer {
 //

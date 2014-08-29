@@ -71,6 +71,10 @@ public class WebGenerator implements IAnswerGenerator{
 			double score = evidenceScorer.score(question, evid);
 			evid.addScore(score);
 		}
+		
+		Collections.sort(evidences, Tools.DSC_SCORE_COMPARAROTR);
+		//LOG.info("最佳证据:"+evidences.get(0));
+		
 		// 4. 答案评分
 		for(Answer answer : answers){
 			double score = answerScorer.score(question, answer, evidences);
