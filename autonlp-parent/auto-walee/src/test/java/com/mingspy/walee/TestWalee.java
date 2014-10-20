@@ -1,7 +1,8 @@
 package com.mingspy.walee;
 
 
-public class TestWalee {
-	
+public class TestWalee
+{
+
 
 }

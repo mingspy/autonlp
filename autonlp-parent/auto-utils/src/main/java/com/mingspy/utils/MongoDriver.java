@@ -11,9 +11,9 @@ public class MongoDriver {
 
 	private static final Mongo.Holder _mongos = new Mongo.Holder();
 	private static Log log = LogFactory.getLog(MongoDriver.class);
-	
+
 	*//**
-	 * 
+	 *
 	 * @param strUri URI string likes: mongodb://10.13.95.60/test.answerPatternData
 	 * @return
 	 *//*

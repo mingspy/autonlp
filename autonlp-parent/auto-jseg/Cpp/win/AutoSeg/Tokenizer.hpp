@@ -186,22 +186,22 @@ public:
 
         vector<SplitResult> splitResults;
         int paths = 0;
-        for(int i = 0; i< MAX_NPATH; i++){
+        for(int i = 0; i< MAX_NPATH; i++) {
             splitResults.push_back(SplitResult());
-            if(shortPath.getBestResult(i, splitResults[i].tokens, &splitResults[i].score)){
-                splitResults[i].score += 0.4 * doPosTagging(str, DictFactory::CoreDict(),   
-                    DictFactory::LexicalDict(), splitResults[i].tokens);
+            if(shortPath.getBestResult(i, splitResults[i].tokens, &splitResults[i].score)) {
+                splitResults[i].score += 0.4 * doPosTagging(str, DictFactory::CoreDict(),
+                                         DictFactory::LexicalDict(), splitResults[i].tokens);
                 paths ++;
-            }else{
+            } else {
                 break;
             }
-            
+
         }
-        
+
         double minScore = 100000000;
         int minIndx = 0;
-        for(int i = 0; i < paths; i++){
-            if(splitResults[i].score  < minScore){
+        for(int i = 0; i < paths; i++) {
+            if(splitResults[i].score  < minScore) {
                 minScore = splitResults[i].score;
                 minIndx = i;
             }
@@ -394,7 +394,7 @@ protected:
                     int toEnd = insTo.attrAt(k);
                     double twoFreq = 1.0;
                     twoFreq += bigramdict.getNatureFreq(word1, str.substr(to, toEnd - to));
-                    
+
                     double probTwo = twoFreq / wordFreq;
                     if(addWordFrq) {
                         probTwo = BIGRAM_SMOTH_FACTOR * probTwo + (1 - BIGRAM_SMOTH_FACTOR) * insTo.valueAt(k);
@@ -421,8 +421,8 @@ protected:
         return score;
     }
 
-    double doPosTagging(const wstring & str, const Dictionary & dict, 
-        const NatureProbTable & context, vector<Token> & result)
+    double doPosTagging(const wstring & str, const Dictionary & dict,
+                        const NatureProbTable & context, vector<Token> & result)
     {
         vector<const WordNature *> observs;
         WordNature * tmp = NULL;

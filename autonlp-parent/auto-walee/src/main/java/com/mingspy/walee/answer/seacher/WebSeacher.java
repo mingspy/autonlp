@@ -7,12 +7,14 @@ import com.mingspy.walee.core.Answer;
 import com.mingspy.walee.core.Evidence;
 import com.mingspy.walee.core.Question;
 
-public class WebSeacher implements IEvidenceSeacher {
+public class WebSeacher implements IEvidenceSeacher
+{
 
-	@Override
-	public List<Evidence> search(Question question, Answer answer) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<Evidence> search(Question question, Answer answer)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

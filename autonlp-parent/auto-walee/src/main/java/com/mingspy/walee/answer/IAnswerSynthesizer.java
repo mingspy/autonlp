@@ -10,6 +10,7 @@ import com.mingspy.walee.core.Question;
  * @author xiuleili
  *
  */
-public interface IAnswerSynthesizer {
-	void synthesis(Question question);
+public interface IAnswerSynthesizer
+{
+    void synthesis(Question question);
 }

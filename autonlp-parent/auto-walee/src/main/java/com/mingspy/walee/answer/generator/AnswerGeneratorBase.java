@@ -15,7 +15,7 @@ public abstract class AnswerGeneratorBase implements IAnswerGenerator {
 	protected IEvidenceSeacher evidenceSearcher = null;
 	protected IEvidenceScorer evidenceScorer = null;
 	protected IAnswerScorer answerScorer = null;
-	@Override	
+	@Override
 	public List<Answer> generate(Question question) {
 		List<Answer> results = generateAnswer(question);
 		if(evidenceSearcher != null){
@@ -29,7 +29,7 @@ public abstract class AnswerGeneratorBase implements IAnswerGenerator {
 				}
 			}
 		}
-		
+
 		if(answerScorer != null){
 			for(Answer answer : results){
 				answerScorer.score(question, answer);
@@ -37,7 +37,7 @@ public abstract class AnswerGeneratorBase implements IAnswerGenerator {
 		}
 		return results;
 	}
-	
+
 	public IEvidenceSeacher getEvidenceSearcher() {
 		return evidenceSearcher;
 	}

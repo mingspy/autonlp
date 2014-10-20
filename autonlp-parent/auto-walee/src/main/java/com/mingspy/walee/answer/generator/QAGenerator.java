@@ -6,6 +6,7 @@ package com.mingspy.walee.answer.generator;
  * @author xiuleili
  *
  */
-public class QAGenerator extends TitledDocGenerator {
+public class QAGenerator extends TitledDocGenerator
+{
 
 }

@@ -8,58 +8,66 @@ import com.mingspy.walee.answer.IAnswerGenerator;
 import com.mingspy.walee.answer.IAnswerSynthesizer;
 import com.mingspy.walee.core.Question;
 
-public class Walee implements IChatting {
+public class Walee implements IChatting
+{
 
-	private static final Logger LOG = Logger.getLogger(Walee.class);
+    private static final Logger LOG = Logger.getLogger(Walee.class);
 
-	private IQAnalyzer questionAnalyzer;
-	private IAnswerGenerator answerGenerator;
-	private IAnswerSynthesizer answerSynthesizer;
+    private IQAnalyzer questionAnalyzer;
+    private IAnswerGenerator answerGenerator;
+    private IAnswerSynthesizer answerSynthesizer;
 
-	@Override
-	public Question answer(String questionStr) {
-		Question question = new Question();
-		question.setContent(questionStr);
+    @Override
+    public Question answer(String questionStr)
+    {
+        Question question = new Question();
+        question.setContent(questionStr);
 
-		LOG.debug("----问题分析开始：[" + questionStr + "]");
-		MSTimer timer = new MSTimer();
-		questionAnalyzer.analysis(question);
-		LOG.debug("----问题分析结束：" + timer);
+        LOG.debug("----问题分析开始：[" + questionStr + "]");
+        MSTimer timer = new MSTimer();
+        questionAnalyzer.analysis(question);
+        LOG.debug("----问题分析结束：" + timer);
 
-		LOG.debug("====答案生成开始：[" + questionStr + "]");
-		timer.restart();
-		answerGenerator.generate(question);
-		LOG.debug("====答案生成结束：" + timer);
-		
-		LOG.debug("====答案合成开始：[" + questionStr + "]");
-		timer.restart();
-		answerSynthesizer.synthesis(question);
-		LOG.debug("====答案合成结束：" + timer);
-		return question;
-	}
+        LOG.debug("====答案生成开始：[" + questionStr + "]");
+        timer.restart();
+        answerGenerator.generate(question);
+        LOG.debug("====答案生成结束：" + timer);
 
-	public IQAnalyzer getQuestionAnalyzer() {
-		return questionAnalyzer;
-	}
+        LOG.debug("====答案合成开始：[" + questionStr + "]");
+        timer.restart();
+        answerSynthesizer.synthesis(question);
+        LOG.debug("====答案合成结束：" + timer);
+        return question;
+    }
 
-	public void setQuestionAnalyzer(IQAnalyzer questionAnalyzer) {
-		this.questionAnalyzer = questionAnalyzer;
-	}
+    public IQAnalyzer getQuestionAnalyzer()
+    {
+        return questionAnalyzer;
+    }
 
-	public IAnswerGenerator getAnswerGenerator() {
-		return answerGenerator;
-	}
+    public void setQuestionAnalyzer(IQAnalyzer questionAnalyzer)
+    {
+        this.questionAnalyzer = questionAnalyzer;
+    }
 
-	public void setAnswerGenerator(IAnswerGenerator answerGenerator) {
-		this.answerGenerator = answerGenerator;
-	}
+    public IAnswerGenerator getAnswerGenerator()
+    {
+        return answerGenerator;
+    }
 
-	public IAnswerSynthesizer getAnswerSynthesizer() {
-		return answerSynthesizer;
-	}
+    public void setAnswerGenerator(IAnswerGenerator answerGenerator)
+    {
+        this.answerGenerator = answerGenerator;
+    }
 
-	public void setAnswerSynthesizer(IAnswerSynthesizer answerSynthesizer) {
-		this.answerSynthesizer = answerSynthesizer;
-	}
+    public IAnswerSynthesizer getAnswerSynthesizer()
+    {
+        return answerSynthesizer;
+    }
+
+    public void setAnswerSynthesizer(IAnswerSynthesizer answerSynthesizer)
+    {
+        this.answerSynthesizer = answerSynthesizer;
+    }
 
 }

@@ -11,12 +11,14 @@ import com.mingspy.walee.core.Question;
  * @author xiuleili
  *
  */
-public class TitledDocGenerator implements IAnswerGenerator {
+public class TitledDocGenerator implements IAnswerGenerator
+{
 
-	@Override
-	public List<Answer> generate(Question question) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<Answer> generate(Question question)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

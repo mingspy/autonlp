@@ -13,21 +13,23 @@ import com.mingspy.walee.core.Tools;
  * @author xiuleili
  *
  */
-public class TokenAnalyzer implements IQAnalyzer {
+public class TokenAnalyzer implements IQAnalyzer
+{
 
-	private static final Logger LOG = Logger.getLogger(TokenAnalyzer.class);
-	
-	@Override
-	public boolean analysis(Question question) {
-		String content = question.getContent();
-		List<Token> tokens = Tools.POSTagging(content);
-		if(tokens != null){
-			question.setProperty(Question.TOKENS, tokens);
-			LOG.debug("问题分词结果:["+tokens+"]");	
-			return true;
-		}
-		
-		return false;
-	}
+    private static final Logger LOG = Logger.getLogger(TokenAnalyzer.class);
+
+    @Override
+    public boolean analysis(Question question)
+    {
+        String content = question.getContent();
+        List<Token> tokens = Tools.POSTagging(content);
+        if(tokens != null) {
+            question.setProperty(Question.TOKENS, tokens);
+            LOG.debug("问题分词结果:["+tokens+"]");
+            return true;
+        }
+
+        return false;
+    }
 
 }

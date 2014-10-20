@@ -13,123 +13,138 @@ import com.mingspy.walee.core.Category;
  * 如宝马，奔驰，别克等统统属于汽车，可以用&ltCAR>来表示<br>
  * 这样在模板匹配的时候可以很容易和用户输入的字符进行匹配。并不要求<br>
  * 每个词都和模板相匹配。
- * 
+ *
  * @author xiuleili
- * 
+ *
  */
-public class Pattern {
+public class Pattern
+{
 
-	public static final String SEPARATOR = ";"; // 分隔符
+    public static final String SEPARATOR = ";"; // 分隔符
 
-	protected long patternId;
-	protected int score;
-	protected List<Item> items;
-	protected String patternStr;
-	protected String category;
-	protected List<Category> cats;
+    protected long patternId;
+    protected int score;
+    protected List<Item> items;
+    protected String patternStr;
+    protected String category;
+    protected List<Category> cats;
 
-	public Pattern(long id, int score, String patternstr, String category) {
-		this.patternId = id;
-		this.score = score;
-		this.patternStr = patternstr;
-		this.category = category;
-		if (patternstr != null) {
-			parse();
-		}
-	}
+    public Pattern(long id, int score, String patternstr, String category)
+    {
+        this.patternId = id;
+        this.score = score;
+        this.patternStr = patternstr;
+        this.category = category;
+        if (patternstr != null) {
+            parse();
+        }
+    }
 
-	public Pattern(long id, int score, List<Item> items, String category) {
-		this.patternId = id;
-		this.score = score;
-		this.items = items;
-		this.category = category;
-	}
+    public Pattern(long id, int score, List<Item> items, String category)
+    {
+        this.patternId = id;
+        this.score = score;
+        this.items = items;
+        this.category = category;
+    }
 
-	public String getCategory() {
-		return category;
-	}
-	
-	public final List<Category> getCategories(){
-		if(cats == null && category != null){
-			cats = Category.parse(category);
-		}
-		return cats;
-	}
+    public String getCategory()
+    {
+        return category;
+    }
 
-	public long getPatternId() {
-		return patternId;
-	}
+    public final List<Category> getCategories()
+    {
+        if(cats == null && category != null) {
+            cats = Category.parse(category);
+        }
+        return cats;
+    }
 
-	public int getScore() {
-		return score;
-	}
+    public long getPatternId()
+    {
+        return patternId;
+    }
 
-	public final List<Item> getItems() {
-		return items;
-	}
+    public int getScore()
+    {
+        return score;
+    }
 
-	public final Item getItem(int index) {
-		return items.get(index);
-	}
+    public final List<Item> getItems()
+    {
+        return items;
+    }
 
-	/**
-	 * get the items size.
-	 * 
-	 * @return
-	 */
-	public final int itemsSize() {
-		if (items != null) {
-			return items.size();
-		}
-		return 0;
-	}
+    public final Item getItem(int index)
+    {
+        return items.get(index);
+    }
 
-	public String getPatternstr() {
-		return patternStr;
-	}
+    /**
+     * get the items size.
+     *
+     * @return
+     */
+    public final int itemsSize()
+    {
+        if (items != null) {
+            return items.size();
+        }
+        return 0;
+    }
 
-	@Override
-	public String toString() {
-		if (patternStr == null && items != null) {
-			StringBuilder s = new StringBuilder();
-			for (int i = 0; i < items.size(); i++) {
-				s.append(items.get(i).getKey());
-				if (i != items.size() - 1) {
-					s.append(SEPARATOR);
-				}
-			}
+    public String getPatternstr()
+    {
+        return patternStr;
+    }
 
-			patternStr = s.toString();
-		}
+    @Override
+    public String toString()
+    {
+        if (patternStr == null && items != null) {
+            StringBuilder s = new StringBuilder();
+            for (int i = 0; i < items.size(); i++) {
+                s.append(items.get(i).getKey());
+                if (i != items.size() - 1) {
+                    s.append(SEPARATOR);
+                }
+            }
 
-		return "pattern:{ patternId:" + patternId + ", score:" + score + ", str:\""
-				+ patternStr + "\",category:" + category + "}";
-	}
+            patternStr = s.toString();
+        }
 
-	private void parse() {
-		if (patternStr == null)
-			return;
+        return "pattern:{ patternId:" + patternId + ", score:" + score + ", str:\""
+               + patternStr + "\",category:" + category + "}";
+    }
 
-		items = new LinkedList<Item>();
-		String[] words = patternStr.split(SEPARATOR);
-		for (String w : words) {
-			items.add(new Item(w));
-		}
-	}
+    private void parse()
+    {
+        if (patternStr == null)
+            return;
 
-	public void addItem(String s) {
-		if (s == null)
-			return;
-		addItem(new Item(s));
-	}
+        items = new LinkedList<Item>();
+        String[] words = patternStr.split(SEPARATOR);
+        for (String w : words) {
+            items.add(new Item(w));
+        }
+    }
 
-	public void addItem(Item s) {
-		if (s == null)
-			return;
-		if (items == null) {
-			items = new LinkedList<Item>();
-		}
-		items.add(s);
-		patternStr = null;
-	}
+    public void addItem(String s)
+    {
+        if (s == null)
+            return;
+        addItem(new Item(s));
+    }
+
+    public void addItem(Item s)
+    {
+        if (s == null)
+            return;
+        if (items == null) {
+            items = new LinkedList<Item>();
+        }
+        items.add(s);
+        patternStr = null;
+    }
 }
