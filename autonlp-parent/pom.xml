@@ -35,7 +35,6 @@
 		</dependency>
 	</dependencies>
 	<modules>
-		<module>auto-jseg</module>
 		<module>auto-utils</module>
 		<module>auto-walee</module>
 	</modules>
